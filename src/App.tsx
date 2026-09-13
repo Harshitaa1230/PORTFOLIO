@@ -13,12 +13,26 @@ const assets = {
   desk: 'https://framerusercontent.com/images/ZwXc6ZYDaHTR5rT7350eKKIDU.png',
 }
 
-type Route = '/' | '/skills' | '/work' | '/contact'
-const routes: Route[] = ['/', '/skills', '/work', '/contact']
+type Route = '/' | '/work' | '/contact'
+const routes: Route[] = ['/', '/work', '/contact']
 
 function go(path: Route) {
   window.history.pushState({}, '', path)
   window.dispatchEvent(new PopStateEvent('popstate'))
+}
+
+const routeLabels: Record<Route, string> = { '/': 'Home', '/work': 'Work', '/contact': 'Contact' }
+
+function navigateWork() {
+  const scrollToWork = () => {
+    document.getElementById('selected-work')?.scrollIntoView({ behavior: 'smooth' })
+  }
+  if (window.location.pathname !== '/') {
+    go('/')
+    setTimeout(scrollToWork, 80)
+  } else {
+    scrollToWork()
+  }
 }
 
 function Header() {
@@ -30,7 +44,7 @@ function Header() {
     return () => context.revert()
   }, [])
   return <header className="site-header" ref={headerRef}>
-    <div><b>Quick Links</b><nav>{routes.map((path, index) => <a key={path} href={path} onClick={(event) => { event.preventDefault(); go(path) }}>{['Home', 'Skills', 'Work', 'Contact'][index]}{index < 3 && ', '}</a>)}</nav></div>
+    <div><b>Quick Links</b><nav>{routes.map((path, index) => <a key={path} href={path} onClick={(event) => { event.preventDefault(); if (path === '/work') navigateWork(); else go(path) }}>{routeLabels[path]}{index < routes.length - 1 && ', '}</a>)}</nav></div>
     <div className="header-right"><b>Based in India</b><span>Product Designer</span></div>
   </header>
 }
@@ -45,7 +59,7 @@ function Footer() {
   }, [])
   return <footer className="site-footer" ref={footerRef}>
     <b>Harshita</b>
-    <nav><a href="/" onClick={(e) => { e.preventDefault(); go('/') }}>Home</a> · <a href="/skills" onClick={(e) => { e.preventDefault(); go('/skills') }}>Skills</a> · <a href="/work" onClick={(e) => { e.preventDefault(); go('/work') }}>Work</a> · <a href="/contact" onClick={(e) => { e.preventDefault(); go('/contact') }}>Contact</a></nav>
+    <nav><a href="/" onClick={(e) => { e.preventDefault(); go('/') }}>Home</a> · <a href="/work" onClick={(e) => { e.preventDefault(); navigateWork() }}>Work</a> · <a href="/contact" onClick={(e) => { e.preventDefault(); go('/contact') }}>Contact</a></nav>
     <p><a href="https://www.linkedin.com/in/harshita-upadhyay-288682414" target="_blank">LinkedIn</a> · <a href="https://www.behance.net/harshitaupadhyay" target="_blank">Behance</a> · <a href="https://www.instagram.com/velvet.drafts_" target="_blank">Instagram</a></p>
     <i>Designed softly, always.</i><span>© 2026 Harshita</span>
   </footer>
@@ -239,7 +253,7 @@ function ProjectStack() {
   }, [])
 
   return (
-    <section className="project-stack" ref={stackRef}>
+    <section id="selected-work" className="project-stack" ref={stackRef}>
       <div className="stack-bg" aria-hidden="true" />
       <div className="stack-fade" aria-hidden="true" />
       <div className="stack-header">
@@ -334,22 +348,12 @@ function Home() {
     <section ref={homeRef} className="home-page">
       <section className="home-intro"><div><h1>Designing gentle moments in a<br className="desktop" /> digital world.</h1><p>दिल से.</p></div><img className="avatar" src="/avatar.png" alt="Illustrated portrait of Harshita" /></section>
       <h2 className="name-display" aria-label="Harshita">{'Harshita'.split('').map((letter, index) => <span className="name-letter" aria-hidden="true" key={`${letter}-${index}`}>{letter}</span>)}</h2>
-      <Texture className="home-about"><figure><img src={assets.desk} alt="A cosy illustrated designer workspace" /></figure><div><p>Hi, I’m <strong>Harshita Upadhyay</strong>, a product designer who loves creating gentle, thoughtful digital experiences. I care deeply about aesthetics, clarity, and the small details that make designs feel calm, human, and meaningful.</p><p>~I design with intention.</p><div className="button-row"><button onClick={() => go('/work')}>See works</button><button onClick={() => go('/contact')}>Resume</button></div></div></Texture>
+      <Texture className="home-about"><figure><img src={assets.desk} alt="A cosy illustrated designer workspace" /></figure><div><p>Hi, I’m <strong>Harshita Upadhyay</strong>, a product designer who loves creating gentle, thoughtful digital experiences. I care deeply about aesthetics, clarity, and the small details that make designs feel calm, human, and meaningful.</p><p>~I design with intention.</p><div className="button-row"><button onClick={navigateWork}>See works</button><button onClick={() => go('/contact')}>Resume</button></div></div></Texture>
       <section className="home-promise"><h2>I MAKE DESIGNS<br />PEOPLE REMEMBER</h2><p>I design clean websites, apps and brand systems that help ideas look sharper, feel trusted and work with purpose</p></section>
     </section>
     <ProjectStack />
     <TestimonialsSection />
   </>
-}
-
-const experience = [
-  ['Product Designer Intern - Neurobots Club, GGITS', 'December 2024 - March 2025', 'Harshita worked as a Product Design Intern at Neurobots Club, GGITS where she consistently brought thoughtful design ideas to team. She has a good eye for clean and user friendly interfaces. She was always open to feedback and iteration. Her ability to balance aesthetics with usability made her a valuable contributor to our team.'],
-  ['Marketing Communication Intern - FinnAI', 'July 2025 - October 2025', 'Worked on content creation, digital marketing initiatives, and market research while collaborating with cross-functional teams to support brand visibility and outreach. Contributed to marketing campaigns and collateral with a focus on clarity, creativity, and communication.'],
-  ['Product Designer Intern - Skedio', 'December 2025 - March 2026', 'Harshita brings creativity, curiosity, and dedication to every project she works on. She has a strong understanding of design fundamentals and always strives to create thoughtful user experiences.']
-]
-
-function Skills() {
-  return <><h1 className="page-title">What I Bring to the Table</h1><Texture className="skills-intro"><div className="note"><b>~ Product Thinking</b><br />• User Research<br />• Problem Framing<br />• User Personas<br />• User Flows<br />• Information Architecture<br />• Design Strategy<br /><b>~ Product Design</b><br />• Wireframing<br />• High-Fidelity UI<br />• Interactive Prototypes<br />• Design Systems<br />• Responsive Design<br /><b>~ Validation</b><br />• Usability Testing<br />• Heuristic Evaluation</div><div className="note rotate"><b>~TOOLS</b><br />• Figma<br />• Framer<br />• FigJam<br />• Notion (documentation)<br />• Blender</div><img className="desk-mini" src={assets.desk} alt="" /></Texture><section className="experience"><h2>Experience</h2>{experience.map(([role, date, text]) => <article key={role}><b>{role}</b><i>{date}</i><p>{text}</p></article>)}</section><section className="certifications"><h2>Certifications</h2><p><i>Professional courses and credentials that strengthen my expertise in UI/UX design and digital product development.</i><br /><b>Google UX Design Professional Certificate</b><br />Google × Coursera · 2025</p><div className="cert-grid">{['Foundations of UX Design', 'Start the UX Design Process', 'Build Wireframes', 'Conduct UX Research', 'Create High-fidelity Designs', 'Build Dynamic UI', 'Design a User Experience', 'Final Certificate'].map((title, i) => <div key={title}><small>HAPPY<br />UNNOTE</small><span>~0{i + 1}. {title}</span></div>)}</div></section></>
 }
 
 function TestimonialsSection() {
@@ -465,40 +469,34 @@ function TestimonialsSection() {
   )
 }
 
-const featuredProjects = stackProjects.filter((p) => p.id !== 'brand-systems')
-
-function Work() {
-  return <>
-    <h1 className="work-title">Some of the UI/UX and graphic<br className="desktop" /> design projects I’ve worked on.</h1>
-    <Texture className="project-area">
-      <div className="project-grid">
-        {featuredProjects.map((proj, i) => (
-          <article className={`project-card project-${i}`} key={proj.id}>
-            <span>{proj.category}</span>
-            <h2>{proj.title}</h2>
-            <p>{proj.desc}</p>
-            {proj.behance && (
-              <a
-                className="project-link"
-                href={proj.behance}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                View on Behance <span aria-hidden="true">→</span>
-              </a>
-            )}
-          </article>
-        ))}
-      </div>
-    </Texture>
-    <TestimonialsSection />
-  </>
-}
-
 function Contact() {
-  const [sent, setSent] = useState(false)
-  const submit = (event: FormEvent) => { event.preventDefault(); setSent(true) }
-  return <><h1 className="contact-title">Have a project, idea, or opportunity?<br className="desktop" /> I’d love to hear from you.</h1><Texture className="contact-area"><form onSubmit={submit}><label>Name<input required placeholder="Jane Smith" /></label><label>Email<input required type="email" placeholder="yourmail@gmail.com" /></label><label>Service<select defaultValue="UI/UX"><option>UI/UX</option><option>Product Design</option><option>Branding</option></select></label><button type="submit">{sent ? 'Thank you!' : 'Submit'}</button></form></Texture></>
+  const [status, setStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    setStatus('sending')
+    try {
+      const res = await fetch('https://formsubmit.co/ajax/harshitaupadhyay7741@gmail.com', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(event.currentTarget),
+      })
+      if (!res.ok) throw new Error('Request failed')
+      setStatus('sent')
+    } catch {
+      setStatus('error')
+    }
+  }
+  return <><h1 className="contact-title">Have a project, idea, or opportunity?<br className="desktop" /> I’d love to hear from you.</h1><Texture className="contact-area"><form onSubmit={submit}>
+    <input type="hidden" name="_subject" value="New message from your portfolio" />
+    <input type="text" name="_honey" className="honey-pot" tabIndex={-1} autoComplete="off" aria-hidden="true" />
+    <label>Name<input name="name" required placeholder="Jane Smith" disabled={status === 'sending'} /></label>
+    <label>Email<input name="email" required type="email" placeholder="yourmail@gmail.com" disabled={status === 'sending'} /></label>
+    <label>Service<select name="service" defaultValue="UI/UX"><option>UI/UX</option><option>Product Design</option><option>Branding</option></select></label>
+    <label>Message<textarea name="message" rows={5} required placeholder="Tell me about your project…" disabled={status === 'sending'} /></label>
+    <button type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'Sending…' : status === 'sent' ? 'Thank you!' : status === 'error' ? 'Try again' : 'Submit'}</button>
+    {status === 'sent' && <p className="form-note ok">Message sent — I’ll get back to you soon.</p>}
+    {status === 'error' && <p className="form-note err">Couldn’t send. Email me directly at harshitaupadhyay7741@gmail.com</p>}
+  </form></Texture></>
 }
 
 function App() {
@@ -507,8 +505,13 @@ function App() {
   useEffect(() => { const handler = () => setPath(window.location.pathname as Route); window.addEventListener('popstate', handler); return () => window.removeEventListener('popstate', handler) }, [])
   useLayoutEffect(() => {
     gsap.fromTo(contentRef.current, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: .45, ease: 'power2.out', clearProps: 'transform' })
+    if (path === '/work') {
+      window.setTimeout(() => {
+        document.getElementById('selected-work')?.scrollIntoView({ behavior: 'smooth' })
+      }, 80)
+    }
   }, [path])
-  const content = path === '/skills' ? <Skills /> : path === '/work' ? <Work /> : path === '/contact' ? <Contact /> : <Home />
+  const content = path === '/contact' ? <Contact /> : <Home />
   return <main className="container"><Header /><section className="page-content" ref={contentRef}>{content}</section><Footer /></main>
 }
 

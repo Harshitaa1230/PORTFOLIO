@@ -2,6 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import type { FormEvent } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import projectsData from './data/projects.json'
+import testimonialsData from './data/testimonials.json'
 import './App.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -57,45 +59,15 @@ interface StackProject {
   id: string
   num: string
   title: string
-  tag: string
+  category: string
   desc: string
-  pills: string[]
+  tags: string[]
+  behance: string
   bgGradient: string
   bgImage: string
 }
 
-const stackProjects: StackProject[] = [
-  {
-    id: 'cybersec',
-    num: '01',
-    title: 'CyberSec',
-    tag: 'UI/UX CASE STUDY',
-    desc: 'A user-centered interface redesign creating a clearer, calmer, and more intuitive approach to cybersecurity workflows.',
-    pills: ['Figma', 'UX Research', 'Design System'],
-    bgGradient: 'linear-gradient(135deg, rgba(82, 57, 54, 0.84), rgba(46, 35, 31, 0.94))',
-    bgImage: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1000&q=80',
-  },
-  {
-    id: 'himalaya',
-    num: '02',
-    title: 'Himalaya',
-    tag: 'MOBILE APP REDESIGN',
-    desc: 'A mobile experience built around thoughtful daily rituals, gentle reminders, and human-centric interaction flows.',
-    pills: ['Mobile UI', 'Prototyping', 'iOS & Android'],
-    bgGradient: 'linear-gradient(135deg, rgba(120, 84, 80, 0.84), rgba(64, 45, 42, 0.94))',
-    bgImage: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=1000&q=80',
-  },
-  {
-    id: 'brand-systems',
-    num: '03',
-    title: 'Brand Systems',
-    tag: 'DESIGN SYSTEMS',
-    desc: 'Cohesive, scalable component libraries and visual tokens engineered to help ideas look sharper and feel trusted.',
-    pills: ['Design Tokens', 'Component Library', 'Accessibility'],
-    bgGradient: 'linear-gradient(135deg, rgba(95, 78, 68, 0.86), rgba(48, 38, 32, 0.94))',
-    bgImage: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80',
-  },
-]
+const stackProjects: StackProject[] = projectsData
 
 function ProjectStack() {
   const stackRef = useRef<HTMLElement>(null)
@@ -306,14 +278,14 @@ function ProjectStack() {
             }}
           >
             <div className="stack-card-top">
-              <span className="stack-card-tag">{proj.tag}</span>
-              <span className="stack-card-num">{proj.num} / 03</span>
+              <span className="stack-card-tag">{proj.category}</span>
+              <span className="stack-card-num">{proj.num} / {String(stackProjects.length).padStart(2, '0')}</span>
             </div>
             <div className="stack-card-body">
               <h2>{proj.title}</h2>
               <p>{proj.desc}</p>
               <div className="stack-card-pills">
-                {proj.pills.map((pill) => (
+                {proj.tags.map((pill) => (
                   <span className="stack-pill-tag" key={pill}>
                     {pill}
                   </span>
@@ -324,20 +296,19 @@ function ProjectStack() {
               <span className="stack-card-hint">
                 {activeIdx !== i
                   ? 'Click card to focus'
-                  : i < 2
+                  : i < stackProjects.length - 1
                   ? 'Scroll for next project'
                   : 'Final selected project'}
               </span>
-              <button
-                type="button"
+              <a
                 className="stack-card-btn"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  go('/work')
-                }}
+                href={proj.behance}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
               >
-                View Case Study <span aria-hidden="true">→</span>
-              </button>
+                View on Behance <span aria-hidden="true">→</span>
+              </a>
             </div>
           </article>
         ))}
@@ -367,6 +338,7 @@ function Home() {
       <section className="home-promise"><h2>I MAKE DESIGNS<br />PEOPLE REMEMBER</h2><p>I design clean websites, apps and brand systems that help ideas look sharper, feel trusted and work with purpose</p></section>
     </section>
     <ProjectStack />
+    <TestimonialsSection />
   </>
 }
 
@@ -380,11 +352,147 @@ function Skills() {
   return <><h1 className="page-title">What I Bring to the Table</h1><Texture className="skills-intro"><div className="note"><b>~ Product Thinking</b><br />• User Research<br />• Problem Framing<br />• User Personas<br />• User Flows<br />• Information Architecture<br />• Design Strategy<br /><b>~ Product Design</b><br />• Wireframing<br />• High-Fidelity UI<br />• Interactive Prototypes<br />• Design Systems<br />• Responsive Design<br /><b>~ Validation</b><br />• Usability Testing<br />• Heuristic Evaluation</div><div className="note rotate"><b>~TOOLS</b><br />• Figma<br />• Framer<br />• FigJam<br />• Notion (documentation)<br />• Blender</div><img className="desk-mini" src={assets.desk} alt="" /></Texture><section className="experience"><h2>Experience</h2>{experience.map(([role, date, text]) => <article key={role}><b>{role}</b><i>{date}</i><p>{text}</p></article>)}</section><section className="certifications"><h2>Certifications</h2><p><i>Professional courses and credentials that strengthen my expertise in UI/UX design and digital product development.</i><br /><b>Google UX Design Professional Certificate</b><br />Google × Coursera · 2025</p><div className="cert-grid">{['Foundations of UX Design', 'Start the UX Design Process', 'Build Wireframes', 'Conduct UX Research', 'Create High-fidelity Designs', 'Build Dynamic UI', 'Design a User Experience', 'Final Certificate'].map((title, i) => <div key={title}><small>HAPPY<br />UNNOTE</small><span>~0{i + 1}. {title}</span></div>)}</div></section></>
 }
 
-const projects = [['CyberSec', 'A UI/UX case study for a clearer, calmer approach to cybersecurity.'], ['Himalaya', 'A mobile app redesign built around thoughtful, friendly rituals.']]
-const quotes = [['Harshita is a very talented designer with a strong command of UI design. She has a great eye for layout, usability, and clean visual structure.', 'Akash Choudhary'], ['Harshita has been a great part of our Skedio team. She brings strong UI skills, a thoughtful design approach, and a good sense of structure.', 'Skedio'], ['Harshita served as our Designer at NeuroBots Robotics Club and consistently delivered outstanding work. Her reliability and creativity made a real impact.', 'Aman Raj, NeuroBots'], ['Harshita successfully completed her internship with FinnAI as a Marketing Communication Intern, demonstrating strong communication skills and creativity.', 'Digvijay Singh Shekhawat']]
+function TestimonialsSection() {
+  const sectionRef = useRef<HTMLElement>(null)
+
+  useLayoutEffect(() => {
+    const context = gsap.context(() => {
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (isReduced) {
+        gsap.set('.card-left-1, .card-right-1', { autoAlpha: 1, y: 0 })
+        gsap.set('.card-left-2, .card-right-2', { display: 'none' })
+        gsap.set('.spine-draw', { height: '100%' })
+        return
+      }
+
+      // Initial state: Only pair 1 is visible in the 2 slots
+      gsap.set('.card-left-1, .card-right-1', { autoAlpha: 1, y: 0 })
+      gsap.set('.card-left-2, .card-right-2', { autoAlpha: 0, y: 30 })
+      gsap.set('.spine-draw', { height: '0%' })
+      gsap.set('.spine-tip', { top: '0%' })
+      gsap.set('.slot-connector', { scaleX: 0 })
+
+      // Pinned scrubbed timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: 'top top',
+          end: () => `+=${window.innerHeight * 1.6}`,
+          pin: true,
+          scrub: 0.8,
+          anticipatePin: 1,
+        },
+      })
+
+      // Draw initial line and connectors to the first two cards
+      tl.to('.spine-draw', { height: '50%', ease: 'none', duration: 1 }, 0)
+      tl.to('.spine-tip', { top: '50%', ease: 'none', duration: 1 }, 0)
+      tl.to('.slot-connector', { scaleX: 1, duration: 0.8, ease: 'power2.out' }, 0.2)
+
+      // Hold pair 1 so user can read them (0.4 -> 0.8)
+
+      // On scroll: at those two places, first testimonial fades out and next comes in
+      // Left place: Card 1 fades out, Card 3 fades in
+      tl.to('.card-left-1', { autoAlpha: 0, y: -24, duration: 0.8, ease: 'power2.inOut' }, 0.8)
+      tl.to('.card-left-2', { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.0)
+
+      // Line draws further down to 100%
+      tl.to('.spine-draw', { height: '100%', ease: 'none', duration: 1.2 }, 0.8)
+      tl.to('.spine-tip', { top: '100%', ease: 'none', duration: 1.2 }, 0.8)
+
+      // Right place: Card 2 fades out, Card 4 fades in
+      tl.to('.card-right-1', { autoAlpha: 0, y: -24, duration: 0.8, ease: 'power2.inOut' }, 0.9)
+      tl.to('.card-right-2', { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.1)
+
+      // Buffer at end so user can comfortably read the new testimonials
+      tl.to({}, { duration: 0.5 })
+    }, sectionRef)
+
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 350)
+    const onResize = () => ScrollTrigger.refresh()
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      clearTimeout(refreshTimer)
+      window.removeEventListener('resize', onResize)
+      context.revert()
+    }
+  }, [])
+
+  return (
+    <section className="testimonials-section" ref={sectionRef}>
+      <div className="testimonials-header">
+        <span className="testimonials-badge">COLLABORATIONS &amp; WORDS</span>
+        <h2 className="testimonials-title">Feedback from clients<br />&amp; collaborators.</h2>
+      </div>
+
+      <div className="two-slot-stage">
+        {/* Central Vertical Line with drawing effect */}
+        <div className="center-spine" aria-hidden="true">
+          <div className="spine-track-line" />
+          <div className="spine-draw" />
+          <div className="spine-tip" />
+        </div>
+
+        {(([
+          'card-left',
+          'card-right',
+        ]) as const).map((prefix) => {
+          const side = prefix === 'card-left' ? 'left' : 'right'
+          const slotCards = testimonialsData.filter((t) => t.side === side).slice(0, 2)
+          return (
+            <div className={`slot-container ${side === 'left' ? 'slot-left' : 'slot-right'}`} key={prefix}>
+              <div className={`slot-connector ${side === 'left' ? 'connector-left' : 'connector-right'}`} aria-hidden="true" />
+              <div className="slot-cards-frame">
+                {slotCards.map((t, i) => (
+                  <article className={`slot-card ${prefix}-${i + 1}`} key={t.id}>
+                    <div className="card-quote-mark" aria-hidden="true">“</div>
+                    <blockquote className="card-quote">{t.quote}</blockquote>
+                    <div className="card-meta">
+                      <strong className="card-author">~ {t.person}</strong>
+                      <span className="card-role">{t.role}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+const featuredProjects = stackProjects.filter((p) => p.id !== 'brand-systems')
 
 function Work() {
-  return <><h1 className="work-title">Some of the UI/UX and graphic<br className="desktop" /> design projects I’ve worked on.</h1><Texture className="project-area"><div className="project-grid">{projects.map(([title, text], i) => <article className={`project-card project-${i}`} key={title}><span>UI/UX CASE STUDY</span><h2>{title}</h2><p>{text}</p></article>)}</div></Texture><section className="feedback"><h2>Feedback from clients<br />&amp; collaborators.</h2><div className="quote-grid">{quotes.map(([quote, person]) => <blockquote key={person}>{quote}<cite>~ {person}</cite></blockquote>)}</div></section></>
+  return <>
+    <h1 className="work-title">Some of the UI/UX and graphic<br className="desktop" /> design projects I’ve worked on.</h1>
+    <Texture className="project-area">
+      <div className="project-grid">
+        {featuredProjects.map((proj, i) => (
+          <article className={`project-card project-${i}`} key={proj.id}>
+            <span>{proj.category}</span>
+            <h2>{proj.title}</h2>
+            <p>{proj.desc}</p>
+            {proj.behance && (
+              <a
+                className="project-link"
+                href={proj.behance}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                View on Behance <span aria-hidden="true">→</span>
+              </a>
+            )}
+          </article>
+        ))}
+      </div>
+    </Texture>
+    <TestimonialsSection />
+  </>
 }
 
 function Contact() {

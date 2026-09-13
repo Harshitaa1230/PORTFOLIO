@@ -277,7 +277,7 @@
   border-radius: 999px;
   border: 1.5px dashed var(--line);
   color: var(--ink);
-  background: rgba(235, 197, 197, 0.25);
+  background: #f5ece6;
   margin-bottom: 12px;
 }
 .testimonials-title {

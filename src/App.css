@@ -741,17 +741,19 @@ button:active { transform: translateY(0) scale(0.97); }
   .name-display { display: none; }
 
   .home-about {
-    grid-template-columns: 1fr;
-    padding: 35px var(--home-gutter);
-    gap: 24px;
+    grid-template-columns: 150px 1fr;
+    padding: 32px var(--home-gutter);
+    gap: 20px;
     min-height: unset;
     margin-bottom: 0;
+    align-items: start;
   }
-  .home-about figure img { width: 220px; }
-  .home-about > div { font-size: 1rem; }
-  .button-row { justify-content: center; gap: 12px; }
-  .button-row button { padding: 16px 18px; font-size: 0.78rem; }
-  .home-about .button-row button { padding: 16px 18px; }
+  .home-about figure { justify-items: center; }
+  .home-about figure img { width: 100%; }
+  .home-about > div { font-size: 0.92rem; }
+  .button-row { justify-content: flex-start; gap: 10px; flex-wrap: wrap; }
+  .button-row button { padding: 14px 16px; font-size: 0.72rem; }
+  .home-about .button-row button { padding: 14px 16px; }
 
   .home-promise { padding: 60px var(--home-gutter) 70px; }
   .home-promise p { font-size: 1rem; }
@@ -801,10 +803,12 @@ button:active { transform: translateY(0) scale(0.97); }
   .home-intro { min-height: 240px; }
   .avatar { width: 120px; height: 120px; }
 
-  .home-about > div { font-size: 0.9rem; letter-spacing: -0.06em; }
-  .button-row { flex-direction: column; align-items: stretch; }
-  .button-row button { width: 100%; }
-  .home-about .button-row button { padding: 16px 18px; }
+  /* Keep two-column layout but tighten image column */
+  .home-about { grid-template-columns: 120px 1fr; gap: 14px; padding: 28px var(--home-gutter); }
+  .home-about > div { font-size: 0.85rem; letter-spacing: -0.06em; }
+  .button-row { gap: 8px; }
+  .button-row button { padding: 12px 14px; font-size: 0.7rem; }
+  .home-about .button-row button { padding: 12px 14px; }
 
   .home-promise { padding: 50px 16px 60px; }
 

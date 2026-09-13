@@ -4,6 +4,8 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import projectsData from './data/projects.json'
 import testimonialsData from './data/testimonials.json'
+import servicesData from './data/services.json'
+import socialsData from './data/socials.json'
 import './App.css'
 
 gsap.registerPlugin(ScrollTrigger)
@@ -60,7 +62,9 @@ function Footer() {
   return <footer className="site-footer" ref={footerRef}>
     <b>Harshita</b>
     <nav><a href="/" onClick={(e) => { e.preventDefault(); go('/') }}>Home</a> · <a href="/work" onClick={(e) => { e.preventDefault(); navigateWork() }}>Work</a> · <a href="/contact" onClick={(e) => { e.preventDefault(); go('/contact') }}>Contact</a></nav>
-    <p><a href="https://www.linkedin.com/in/harshita-upadhyay-288682414" target="_blank">LinkedIn</a> · <a href="https://www.behance.net/harshitaupadhyay" target="_blank">Behance</a> · <a href="https://www.instagram.com/velvet.drafts_" target="_blank">Instagram</a></p>
+    <p>{socialsData.map((social, i) => (
+      <span key={social.name}><a href={social.url} target="_blank" rel="noreferrer">{social.name}</a>{i < socialsData.length - 1 ? ' · ' : ''}</span>
+    ))}</p>
     <i>Designed softly, always.</i><span>© 2026 Harshita</span>
   </footer>
 }
@@ -491,7 +495,7 @@ function Contact() {
     <input type="text" name="_honey" className="honey-pot" tabIndex={-1} autoComplete="off" aria-hidden="true" />
     <label>Name<input name="name" required placeholder="Jane Smith" disabled={status === 'sending'} /></label>
     <label>Email<input name="email" required type="email" placeholder="yourmail@gmail.com" disabled={status === 'sending'} /></label>
-    <label>Service<select name="service" defaultValue="UI/UX"><option>UI/UX</option><option>Product Design</option><option>Branding</option></select></label>
+    <label>Service<select name="service" defaultValue={servicesData[0]}>{servicesData.map((service) => <option key={service}>{service}</option>)}</select></label>
     <label>Message<textarea name="message" rows={5} required placeholder="Tell me about your project…" disabled={status === 'sending'} /></label>
     <button type="submit" disabled={status === 'sending'}>{status === 'sending' ? 'Sending…' : status === 'sent' ? 'Thank you!' : status === 'error' ? 'Try again' : 'Submit'}</button>
     {status === 'sent' && <p className="form-note ok">Message sent — I’ll get back to you soon.</p>}

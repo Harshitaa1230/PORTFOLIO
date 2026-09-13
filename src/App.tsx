@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -53,6 +53,299 @@ function Texture({ children, className = '' }: { children: React.ReactNode, clas
   return <section className={`texture ${className}`} style={{ backgroundImage: `linear-gradient(rgba(248,245,242,.72), rgba(248,245,242,.72)), url(${assets.gingham})` }}>{children}</section>
 }
 
+interface StackProject {
+  id: string
+  num: string
+  title: string
+  tag: string
+  desc: string
+  pills: string[]
+  bgGradient: string
+  bgImage: string
+}
+
+const stackProjects: StackProject[] = [
+  {
+    id: 'cybersec',
+    num: '01',
+    title: 'CyberSec',
+    tag: 'UI/UX CASE STUDY',
+    desc: 'A user-centered interface redesign creating a clearer, calmer, and more intuitive approach to cybersecurity workflows.',
+    pills: ['Figma', 'UX Research', 'Design System'],
+    bgGradient: 'linear-gradient(135deg, rgba(82, 57, 54, 0.84), rgba(46, 35, 31, 0.94))',
+    bgImage: 'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1000&q=80',
+  },
+  {
+    id: 'himalaya',
+    num: '02',
+    title: 'Himalaya',
+    tag: 'MOBILE APP REDESIGN',
+    desc: 'A mobile experience built around thoughtful daily rituals, gentle reminders, and human-centric interaction flows.',
+    pills: ['Mobile UI', 'Prototyping', 'iOS & Android'],
+    bgGradient: 'linear-gradient(135deg, rgba(120, 84, 80, 0.84), rgba(64, 45, 42, 0.94))',
+    bgImage: 'https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=1000&q=80',
+  },
+  {
+    id: 'brand-systems',
+    num: '03',
+    title: 'Brand Systems',
+    tag: 'DESIGN SYSTEMS',
+    desc: 'Cohesive, scalable component libraries and visual tokens engineered to help ideas look sharper and feel trusted.',
+    pills: ['Design Tokens', 'Component Library', 'Accessibility'],
+    bgGradient: 'linear-gradient(135deg, rgba(95, 78, 68, 0.86), rgba(48, 38, 32, 0.94))',
+    bgImage: 'https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80',
+  },
+]
+
+function ProjectStack() {
+  const stackRef = useRef<HTMLElement>(null)
+  const stRef = useRef<ScrollTrigger | null>(null)
+  const [activeIdx, setActiveIdx] = useState(0)
+
+  const scrollToProject = useCallback((idx: number) => {
+    if (!stRef.current) return
+    const targets = [0.02, 0.52, 0.98]
+    const targetProgress = targets[idx] ?? 0
+    const start = stRef.current.start
+    const end = stRef.current.end
+    const scrollPos = start + (end - start) * targetProgress
+    window.scrollTo({ top: scrollPos, behavior: 'smooth' })
+  }, [])
+
+  useLayoutEffect(() => {
+    const context = gsap.context(() => {
+      const cards = gsap.utils.toArray<HTMLElement>('.stack-card')
+      const n = cards.length
+      if (!n) return
+
+      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      if (isReduced) {
+        cards.forEach((card, i) => {
+          gsap.set(card, {
+            y: 0,
+            yPercent: 0,
+            scale: 1,
+            autoAlpha: 1,
+            zIndex: i + 1,
+          })
+        })
+        return
+      }
+
+      const w = window.innerWidth
+      const isMobile = w < 650
+      const isTablet = w < 1050
+      const leftShift = isMobile ? -68 : (isTablet ? -54 : -60)
+      const rightShift = isMobile ? 68 : (isTablet ? 54 : 60)
+      const rotAngle = isMobile ? 3 : 4
+      const sideScale = isMobile ? 0.88 : 0.92
+      const sideOpacity = isMobile ? 0.5 : 0.82
+
+      // Initial positions:
+      // Card 0 starts in center
+      // Cards 1 and 2 wait below the fold
+      gsap.set(cards[0], {
+        xPercent: 0,
+        yPercent: 0,
+        scale: 1,
+        rotation: 0,
+        zIndex: 30,
+        autoAlpha: 1,
+        filter: 'brightness(1)',
+      })
+      gsap.set(cards[1], {
+        xPercent: 0,
+        yPercent: 120,
+        scale: 1,
+        rotation: 0,
+        zIndex: 25,
+        autoAlpha: 0,
+        filter: 'brightness(1)',
+      })
+      gsap.set(cards[2], {
+        xPercent: 0,
+        yPercent: 120,
+        scale: 1,
+        rotation: 0,
+        zIndex: 20,
+        autoAlpha: 0,
+        filter: 'brightness(1)',
+      })
+
+      // Scrubbed timeline
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: stackRef.current,
+          start: 'top top',
+          end: () => `+=${window.innerHeight * 2.2}`,
+          scrub: 0.8,
+          pin: true,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            const p = self.progress
+            if (p < 0.38) {
+              setActiveIdx(0)
+            } else if (p < 0.76) {
+              setActiveIdx(1)
+            } else {
+              setActiveIdx(2)
+            }
+          },
+        },
+      })
+
+      stRef.current = tl.scrollTrigger ?? null
+
+      // Background atmospheric depth
+      tl.to('.stack-bg', { filter: 'blur(10px)', scale: 1.07, ease: 'none', duration: 2.4 }, 0)
+      tl.to('.stack-fade', { backgroundColor: 'rgba(38, 28, 25, 0.48)', ease: 'none', duration: 2.4 }, 0)
+
+      // Hold Card 0 slightly at start (0 -> 0.15)
+
+      // Transition 1: As Card 1 enters center from below, Card 0 moves LEFT
+      tl.to(cards[0], {
+        xPercent: leftShift,
+        rotation: -rotAngle,
+        scale: sideScale,
+        filter: 'brightness(0.82)',
+        opacity: sideOpacity,
+        zIndex: 10,
+        duration: 0.9,
+        ease: 'power2.out',
+      }, 0.15)
+      tl.to(cards[1], {
+        yPercent: 0,
+        autoAlpha: 1,
+        zIndex: 30,
+        duration: 0.9,
+        ease: 'power2.out',
+      }, 0.15)
+
+      // Hold Card 1 in center (1.05 -> 1.25)
+
+      // Transition 2: As Card 2 enters center from below, Card 1 moves RIGHT
+      tl.to(cards[1], {
+        xPercent: rightShift,
+        rotation: rotAngle,
+        scale: sideScale,
+        filter: 'brightness(0.82)',
+        opacity: sideOpacity,
+        zIndex: 20,
+        duration: 0.9,
+        ease: 'power2.out',
+      }, 1.25)
+      tl.to(cards[0], {
+        xPercent: leftShift * 1.04,
+        scale: sideScale * 0.96,
+        opacity: isMobile ? 0.35 : sideOpacity,
+        duration: 0.9,
+        ease: 'power2.out',
+      }, 1.25)
+      tl.to(cards[2], {
+        yPercent: 0,
+        autoAlpha: 1,
+        zIndex: 35,
+        duration: 0.9,
+        ease: 'power2.out',
+      }, 1.25)
+
+      // Buffer at end so user can read card 2 comfortably
+      tl.to({}, { duration: 0.25 })
+    }, stackRef)
+
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh()
+    }, 350)
+    const onResize = () => ScrollTrigger.refresh()
+    window.addEventListener('resize', onResize)
+
+    return () => {
+      clearTimeout(refreshTimer)
+      window.removeEventListener('resize', onResize)
+      context.revert()
+    }
+  }, [])
+
+  return (
+    <section className="project-stack" ref={stackRef}>
+      <div className="stack-bg" aria-hidden="true" />
+      <div className="stack-fade" aria-hidden="true" />
+      <div className="stack-header">
+        <div className="stack-heading-text">
+          <b>SELECTED WORK</b>
+          <span>Scroll down to explore each project</span>
+        </div>
+        <div className="stack-nav" role="tablist" aria-label="Selected work navigation">
+          {stackProjects.map((proj, idx) => (
+            <button
+              key={proj.id}
+              type="button"
+              role="tab"
+              aria-selected={activeIdx === idx}
+              className={`stack-nav-pill ${activeIdx === idx ? 'is-active' : ''}`}
+              onClick={() => scrollToProject(idx)}
+            >
+              <span className="pill-index">{proj.num}</span>
+              <span className="pill-title">{proj.title}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+      <div className="stack-area">
+        {stackProjects.map((proj, i) => (
+          <article
+            className={`stack-card stack-card-${i} ${activeIdx === i ? 'active-card' : 'inactive-side-card'}`}
+            key={proj.id}
+            style={{
+              backgroundImage: `${proj.bgGradient}, url(${proj.bgImage})`,
+            }}
+            onClick={() => {
+              if (activeIdx !== i) {
+                scrollToProject(i)
+              }
+            }}
+          >
+            <div className="stack-card-top">
+              <span className="stack-card-tag">{proj.tag}</span>
+              <span className="stack-card-num">{proj.num} / 03</span>
+            </div>
+            <div className="stack-card-body">
+              <h2>{proj.title}</h2>
+              <p>{proj.desc}</p>
+              <div className="stack-card-pills">
+                {proj.pills.map((pill) => (
+                  <span className="stack-pill-tag" key={pill}>
+                    {pill}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="stack-card-footer">
+              <span className="stack-card-hint">
+                {activeIdx !== i
+                  ? 'Click card to focus'
+                  : i < 2
+                  ? 'Scroll for next project'
+                  : 'Final selected project'}
+              </span>
+              <button
+                type="button"
+                className="stack-card-btn"
+                onClick={(e) => {
+                  e.stopPropagation()
+                  go('/work')
+                }}
+              >
+                View Case Study <span aria-hidden="true">→</span>
+              </button>
+            </div>
+          </article>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function Home() {
   const homeRef = useRef<HTMLElement>(null)
   useLayoutEffect(() => {
@@ -71,7 +364,9 @@ function Home() {
       <section className="home-intro"><div><h1>Designing gentle moments in a<br className="desktop" /> digital world.</h1><p>दिल से.</p></div><img className="avatar" src="/avatar.png" alt="Illustrated portrait of Harshita" /></section>
       <h2 className="name-display" aria-label="Harshita">{'Harshita'.split('').map((letter, index) => <span className="name-letter" aria-hidden="true" key={`${letter}-${index}`}>{letter}</span>)}</h2>
       <Texture className="home-about"><figure><img src={assets.desk} alt="A cosy illustrated designer workspace" /></figure><div><p>Hi, I’m <strong>Harshita Upadhyay</strong>, a product designer who loves creating gentle, thoughtful digital experiences. I care deeply about aesthetics, clarity, and the small details that make designs feel calm, human, and meaningful.</p><p>~I design with intention.</p><div className="button-row"><button onClick={() => go('/work')}>See works</button><button onClick={() => go('/contact')}>Resume</button></div></div></Texture>
+      <section className="home-promise"><h2>I MAKE DESIGNS<br />PEOPLE REMEMBER</h2><p>I design clean websites, apps and brand systems that help ideas look sharper, feel trusted and work with purpose</p></section>
     </section>
+    <ProjectStack />
   </>
 }
 

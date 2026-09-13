@@ -1,0 +1,30 @@
+[
+  {
+    "id": "akash",
+    "quote": "Harshita is a very talented designer with a strong command of UI design. She has a great eye for layout, usability, and clean visual structure.",
+    "person": "Akash Choudhary",
+    "role": "Lead UI/UX Designer",
+    "side": "left"
+  },
+  {
+    "id": "skedio",
+    "quote": "Harshita has been a great part of our Skedio team. She brings strong UI skills, a thoughtful design approach, and a good sense of structure.",
+    "person": "Skedio Team",
+    "role": "Product & Design Partner",
+    "side": "right"
+  },
+  {
+    "id": "neurobots",
+    "quote": "Harshita served as our Designer at NeuroBots Robotics Club and consistently delivered outstanding work. Her reliability and creativity made a real impact.",
+    "person": "Aman Raj",
+    "role": "Club Lead, NeuroBots",
+    "side": "left"
+  },
+  {
+    "id": "finnai",
+    "quote": "Harshita successfully completed her internship with FinnAI as a Marketing Communication Intern, demonstrating strong communication skills and creativity.",
+    "person": "Digvijay Singh Shekhawat",
+    "role": "Communications Lead, FinnAI",
+    "side": "right"
+  }
+]

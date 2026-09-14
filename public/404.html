@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>Page not found</title>
+    <link rel="icon" type="image/png" href="/avatar.png" />
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Intel+One+Mono:wght@400;500;600;700&display=swap');
+      :root { --ink: #5b4a44; --paper: #f8f5f2; --pink: #ebc5c5; --line: #65564f; }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'Intel One Mono', ui-monospace, monospace;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 24px;
+      }
+      .c { text-align: center; max-width: 480px; }
+      .mark {
+        font-size: clamp(4rem, 12vw, 6.5rem);
+        font-weight: 700;
+        color: var(--pink);
+        line-height: 1;
+        letter-spacing: 0.05em;
+      }
+      h1 {
+        font-size: clamp(1.2rem, 3.5vw, 1.6rem);
+        font-weight: 700;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin: 24px 0 12px;
+      }
+      p { margin: 0 0 28px; font-size: 0.9rem; opacity: 0.75; }
+      a.btn {
+        display: inline-block;
+        padding: 10px 22px;
+        border-radius: 999px;
+        border: 1.5px dashed var(--line);
+        background: rgba(248, 245, 242, 0.82);
+        color: var(--ink);
+        text-decoration: none;
+        font-size: 0.85rem;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        transition: background 0.25s ease, color 0.25s ease;
+      }
+      a.btn:hover { background: var(--ink); color: var(--paper); }
+    </style>
+  </head>
+  <body>
+    <main class="c">
+      <div class="mark">404</div>
+      <h1>Page not found</h1>
+      <p>This page doesn&rsquo;t exist — or it moved.</p>
+      <a class="btn" href="/">Back to homepage</a>
+    </main>
+  </body>
+</html>

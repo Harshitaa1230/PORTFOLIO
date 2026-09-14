@@ -11,19 +11,16 @@ import './App.css'
 gsap.registerPlugin(ScrollTrigger)
 
 const assets = {
-  gingham: 'https://framerusercontent.com/images/pFxihdcjpfn91IKuZI3YvGOqth0.jpg',
-  desk: 'https://framerusercontent.com/images/ZwXc6ZYDaHTR5rT7350eKKIDU.png',
+  gingham: '/gingham.webp',
+  desk: '/desk.webp',
 }
 
-type Route = '/' | '/work' | '/contact'
-const routes: Route[] = ['/', '/work', '/contact']
+type Route = '/' | '/contact'
 
 function go(path: Route) {
   window.history.pushState({}, '', path)
   window.dispatchEvent(new PopStateEvent('popstate'))
 }
-
-const routeLabels: Record<Route, string> = { '/': 'Home', '/work': 'Work', '/contact': 'Contact' }
 
 function navigateWork() {
   const scrollToWork = () => {
@@ -40,13 +37,17 @@ function navigateWork() {
 function Header() {
   const headerRef = useRef<HTMLElement>(null)
   useLayoutEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(headerRef.current, { autoAlpha: 1, y: 0 })
+      return
+    }
     const context = gsap.context(() => {
       gsap.fromTo(headerRef.current, { autoAlpha: 0, y: -10 }, { autoAlpha: 1, y: 0, duration: .65, ease: 'power2.out' })
     }, headerRef)
     return () => context.revert()
   }, [])
   return <header className="site-header" ref={headerRef}>
-    <div><b>Quick Links</b><nav>{routes.map((path, index) => <a key={path} href={path} onClick={(event) => { event.preventDefault(); if (path === '/work') navigateWork(); else go(path) }}>{routeLabels[path]}{index < routes.length - 1 && ', '}</a>)}</nav></div>
+    <div><b>Quick Links</b><nav aria-label="Primary"><a href="/">Home</a>, <a href="/#selected-work" onClick={(event) => { event.preventDefault(); navigateWork() }}>Work</a>, <a href="/contact">Contact</a></nav></div>
     <div className="header-right"><b>Based in India</b><span>Product Designer</span></div>
   </header>
 }
@@ -54,6 +55,10 @@ function Header() {
 function Footer() {
   const footerRef = useRef<HTMLElement>(null)
   useLayoutEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(footerRef.current, { autoAlpha: 1, y: 0 })
+      return
+    }
     const context = gsap.context(() => {
       gsap.fromTo(footerRef.current, { autoAlpha: 0, y: 14 }, { autoAlpha: 1, y: 0, duration: .65, ease: 'power2.out', scrollTrigger: { trigger: footerRef.current, start: 'top 92%', once: true } })
     }, footerRef)
@@ -61,7 +66,7 @@ function Footer() {
   }, [])
   return <footer className="site-footer" ref={footerRef}>
     <b>Harshita</b>
-    <nav><a href="/" onClick={(e) => { e.preventDefault(); go('/') }}>Home</a> · <a href="/work" onClick={(e) => { e.preventDefault(); navigateWork() }}>Work</a> · <a href="/contact" onClick={(e) => { e.preventDefault(); go('/contact') }}>Contact</a></nav>
+    <nav aria-label="Footer"><a href="/">Home</a> · <a href="/#selected-work" onClick={(e) => { e.preventDefault(); navigateWork() }}>Work</a> · <a href="/contact">Contact</a></nav>
     <p>{socialsData.map((social, i) => (
       <span key={social.name}><a href={social.url} target="_blank" rel="noreferrer">{social.name}</a>{i < socialsData.length - 1 ? ' · ' : ''}</span>
     ))}</p>
@@ -256,22 +261,43 @@ function ProjectStack() {
     }
   }, [])
 
+  useLayoutEffect(() => {
+    const applyBackgrounds = () => {
+      const bg = stackRef.current?.querySelector<HTMLElement>('.stack-bg')
+      if (bg) bg.style.backgroundImage = "linear-gradient(rgba(248,245,242,.62), rgba(248,245,242,.62)), url('/gingham.webp')"
+      stackRef.current?.querySelectorAll<HTMLElement>('.stack-card').forEach((card, i) => {
+        const proj = stackProjects[i]
+        if (proj) card.style.backgroundImage = `${proj.bgGradient}, url(${proj.bgImage})`
+      })
+    }
+    const target = stackRef.current
+    if (!target) return
+    if (!('IntersectionObserver' in window)) { applyBackgrounds(); return }
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) {
+        applyBackgrounds()
+        io.disconnect()
+      }
+    }, { rootMargin: '900px 0px' })
+    io.observe(target)
+    return () => io.disconnect()
+  }, [])
+
   return (
     <section id="selected-work" className="project-stack" ref={stackRef}>
       <div className="stack-bg" aria-hidden="true" />
       <div className="stack-fade" aria-hidden="true" />
       <div className="stack-header">
         <div className="stack-heading-text">
-          <b>SELECTED WORK</b>
+          <h2>SELECTED WORK</h2>
           <span>Scroll down to explore each project</span>
         </div>
-        <div className="stack-nav" role="tablist" aria-label="Selected work navigation">
+        <div className="stack-nav" role="group" aria-label="Selected work navigation">
           {stackProjects.map((proj, idx) => (
             <button
               key={proj.id}
               type="button"
-              role="tab"
-              aria-selected={activeIdx === idx}
+              aria-pressed={activeIdx === idx}
               className={`stack-nav-pill ${activeIdx === idx ? 'is-active' : ''}`}
               onClick={() => scrollToProject(idx)}
             >
@@ -286,9 +312,6 @@ function ProjectStack() {
           <article
             className={`stack-card stack-card-${i} ${activeIdx === i ? 'active-card' : 'inactive-side-card'}`}
             key={proj.id}
-            style={{
-              backgroundImage: `${proj.bgGradient}, url(${proj.bgImage})`,
-            }}
             onClick={() => {
               if (activeIdx !== i) {
                 scrollToProject(i)
@@ -300,7 +323,7 @@ function ProjectStack() {
               <span className="stack-card-num">{proj.num} / {String(stackProjects.length).padStart(2, '0')}</span>
             </div>
             <div className="stack-card-body">
-              <h2>{proj.title}</h2>
+              <h3>{proj.title}</h3>
               <p>{proj.desc}</p>
               <div className="stack-card-pills">
                 {proj.tags.map((pill) => (
@@ -338,6 +361,14 @@ function ProjectStack() {
 function Home() {
   const homeRef = useRef<HTMLElement>(null)
   useLayoutEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const context = gsap.context(() => {
+        gsap.set('.home-intro > div, .name-letter, .home-about > div', { autoAlpha: 1, y: 0 })
+        gsap.set('.avatar', { autoAlpha: 1, scale: 1, y: 0 })
+        gsap.set('.home-about figure', { autoAlpha: 1, scale: 1, y: 0 })
+      }, homeRef)
+      return () => context.revert()
+    }
     const context = gsap.context(() => {
       gsap.fromTo('.home-intro > div', { autoAlpha: 0, y: 16 }, { autoAlpha: 1, y: 0, duration: .8, ease: 'power2.out', delay: .12 })
       gsap.fromTo('.avatar', { autoAlpha: 0, scale: .92 }, { autoAlpha: 1, scale: 1, duration: .85, ease: 'power2.out', delay: .24 })
@@ -350,9 +381,9 @@ function Home() {
   }, [])
   return <>
     <section ref={homeRef} className="home-page">
-      <section className="home-intro"><div><h1>Designing gentle moments in a<br className="desktop" /> digital world.</h1><p>दिल से.</p></div><img className="avatar" src="/avatar.png" alt="Illustrated portrait of Harshita" /></section>
+      <section className="home-intro"><div><h1>Designing gentle moments in a<br className="desktop" /> digital world.</h1><p>दिल से.</p></div><img className="avatar" src="/avatar.webp" width="190" height="190" decoding="async" alt="Illustrated portrait of Harshita Upadhyay" /></section>
       <h2 className="name-display" aria-label="Harshita">{'Harshita'.split('').map((letter, index) => <span className="name-letter" aria-hidden="true" key={`${letter}-${index}`}>{letter}</span>)}</h2>
-      <Texture className="home-about"><figure><img src={assets.desk} alt="A cosy illustrated designer workspace" /></figure><div><p>Hi, I’m <strong>Harshita Upadhyay</strong>, a product designer who loves creating gentle, thoughtful digital experiences. I care deeply about aesthetics, clarity, and the small details that make designs feel calm, human, and meaningful.</p><p>~I design with intention.</p><div className="button-row"><button onClick={navigateWork}>See works</button><button onClick={() => go('/contact')}>Resume</button></div></div></Texture>
+      <Texture className="home-about"><figure><img src={assets.desk} width="982" height="949" loading="lazy" decoding="async" alt="A cosy illustrated designer workspace" /></figure><div><p>Hi, I’m <strong>Harshita Upadhyay</strong>, a product designer who loves creating gentle, thoughtful digital experiences. I care deeply about aesthetics, clarity, and the small details that make designs feel calm, human, and meaningful.</p><p>~I design with intention.</p><div className="button-row"><a href="/#selected-work" onClick={(e) => { e.preventDefault(); navigateWork() }}>See works</a><a href="/contact">Resume</a></div></div></Texture>
       <section className="home-promise"><h2>I MAKE DESIGNS<br />PEOPLE REMEMBER</h2><p>I design clean websites, apps and brand systems that help ideas look sharper, feel trusted and work with purpose</p></section>
     </section>
     <ProjectStack />
@@ -504,15 +535,21 @@ function Contact() {
 }
 
 function App() {
-  const [path, setPath] = useState<Route>(routes.includes(window.location.pathname as Route) ? window.location.pathname as Route : '/')
+  const resolvePath = (raw: string): Route => {
+    if (raw === '/contact') return '/contact'
+    return '/'
+  }
+  const [path, setPath] = useState<Route>(() => resolvePath(window.location.pathname))
   const contentRef = useRef<HTMLElement>(null)
-  useEffect(() => { const handler = () => setPath(window.location.pathname as Route); window.addEventListener('popstate', handler); return () => window.removeEventListener('popstate', handler) }, [])
+  useEffect(() => { const handler = () => setPath(resolvePath(window.location.pathname)); window.addEventListener('popstate', handler); return () => window.removeEventListener('popstate', handler) }, [])
   useLayoutEffect(() => {
     gsap.fromTo(contentRef.current, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: .45, ease: 'power2.out', clearProps: 'transform' })
-    if (path === '/work') {
+    if (window.location.pathname === '/work') {
       window.setTimeout(() => {
         document.getElementById('selected-work')?.scrollIntoView({ behavior: 'smooth' })
       }, 80)
+    } else {
+      window.scrollTo({ top: 0 })
     }
   }, [path])
   const content = path === '/contact' ? <Contact /> : <Home />

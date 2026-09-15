@@ -116,15 +116,18 @@ function ProjectStack() {
 
       const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (isReduced) {
+        // Cascade the cards vertically so every project stays visible
         cards.forEach((card, i) => {
           gsap.set(card, {
-            y: 0,
+            y: i * 56,
             yPercent: 0,
             scale: 1,
             autoAlpha: 1,
             zIndex: i + 1,
           })
         })
+        const bg = stackRef.current?.querySelector<HTMLElement>('.stack-bg')
+        if (bg) gsap.set(bg, { clearProps: 'transform,filter' })
         return
       }
 
@@ -400,8 +403,22 @@ function Home() {
 
 function TestimonialsSection() {
   const sectionRef = useRef<HTMLElement>(null)
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false
+  )
+
+  useEffect(() => {
+    const mob = window.matchMedia('(max-width: 768px)')
+    const sync = () => setIsMobile(mob.matches)
+    sync()
+    mob.addEventListener('change', sync)
+    return () => mob.removeEventListener('change', sync)
+  }, [])
 
   useLayoutEffect(() => {
+    // On responsive screens the cards run as an auto-rotating marquee,
+    // so the desktop scroll-scrub timeline is skipped entirely (no pin).
+    if (isMobile) return
     const context = gsap.context(() => {
       const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       if (isReduced) {
@@ -465,7 +482,7 @@ function TestimonialsSection() {
       window.removeEventListener('resize', onResize)
       context.revert()
     }
-  }, [])
+  }, [isMobile])
 
   return (
     <section className="testimonials-section" ref={sectionRef}>
@@ -474,27 +491,14 @@ function TestimonialsSection() {
         <h2 className="testimonials-title">Feedback from clients<br />&amp; collaborators.</h2>
       </div>
 
-      <div className="two-slot-stage">
-        {/* Central Vertical Line with drawing effect */}
-        <div className="center-spine" aria-hidden="true">
-          <div className="spine-track-line" />
-          <div className="spine-draw" />
-          <div className="spine-tip" />
-        </div>
-
-        {(([
-          'card-left',
-          'card-right',
-        ]) as const).map((prefix) => {
-          const side = prefix === 'card-left' ? 'left' : 'right'
-          const slotCards = testimonialsData.filter((t) => t.side === side).slice(0, 2)
-          return (
-            <div className={`slot-container ${side === 'left' ? 'slot-left' : 'slot-right'}`} key={prefix}>
-              <div className={`slot-connector ${side === 'left' ? 'connector-left' : 'connector-right'}`} aria-hidden="true" />
-              <div className="slot-cards-frame">
-                {slotCards.map((t, i) => (
-                  <article className={`slot-card ${prefix}-${i + 1}`} key={t.id}>
-                    <div className="card-quote-mark" aria-hidden="true">“</div>
+      {isMobile ? (
+        <div className="marquee-stage" role="region" aria-label="Client testimonials">
+          <div className="marquee-track">
+            {[false, true].map((duplicate) => (
+              <div className="marquee-group" aria-hidden={duplicate} key={duplicate ? 'dup' : 'orig'}>
+                {testimonialsData.map((t) => (
+                  <article className="slot-card marquee-item" key={`${t.id}-${duplicate}`}>
+                    <div className="card-quote-mark" aria-hidden="true">"</div>
                     <blockquote className="card-quote">{t.quote}</blockquote>
                     <div className="card-meta">
                       <strong className="card-author">~ {t.person}</strong>
@@ -503,10 +507,44 @@ function TestimonialsSection() {
                   </article>
                 ))}
               </div>
-            </div>
-          )
-        })}
-      </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <div className="two-slot-stage">
+          {/* Central Vertical Line with drawing effect */}
+          <div className="center-spine" aria-hidden="true">
+            <div className="spine-track-line" />
+            <div className="spine-draw" />
+            <div className="spine-tip" />
+          </div>
+
+          {(([
+            'card-left',
+            'card-right',
+          ]) as const).map((prefix) => {
+            const side = prefix === 'card-left' ? 'left' : 'right'
+            const slotCards = testimonialsData.filter((t) => t.side === side).slice(0, 2)
+            return (
+              <div className={`slot-container ${side === 'left' ? 'slot-left' : 'slot-right'}`} key={prefix}>
+                <div className={`slot-connector ${side === 'left' ? 'connector-left' : 'connector-right'}`} aria-hidden="true" />
+                <div className="slot-cards-frame">
+                  {slotCards.map((t, i) => (
+                    <article className={`slot-card ${prefix}-${i + 1}`} key={t.id}>
+                      <div className="card-quote-mark" aria-hidden="true">“</div>
+                      <blockquote className="card-quote">{t.quote}</blockquote>
+                      <div className="card-meta">
+                        <strong className="card-author">~ {t.person}</strong>
+                        <span className="card-role">{t.role}</span>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
     </section>
   )
 }

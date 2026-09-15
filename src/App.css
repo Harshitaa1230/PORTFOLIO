@@ -4,7 +4,7 @@
   --paper: #f8f5f2;
   --pink: #ebc5c5;
   --line: #65564f;
-  --home-gutter: max(6.5%, 80px);
+  --home-gutter: clamp(18px, 5.5vw, 96px);
 }
 
 /* ─── Reset ──────────────────────────────────────────────────────────────── */
@@ -89,7 +89,7 @@ a { color: inherit; text-decoration: none; }
 }
 .home-about figure { margin: 0; display: grid; place-items: center; justify-items: start; }
 .home-about figure img { width: min(394px, 100%); aspect-ratio: 982 / 949; height: auto; border: 6px dashed var(--ink); border-radius: 20px; }
-.home-about > div { font-size: clamp(0.9rem, 1.9vw, 1.4rem); line-height: 1.25; letter-spacing: -0.08em; }
+.home-about > div { font-size: clamp(0.9rem, 1.9vw, 1.4rem); line-height: 1.25; letter-spacing: -0.08em; max-width: 640px; }
 .button-row { display: flex; gap: 20px; margin-top: 25px; }
 .button-row a {
   display: inline-block;
@@ -138,6 +138,9 @@ button:active { transform: translateY(0) scale(0.97); }
   flex-direction: column;
   justify-content: center;
   align-items: center;
+}
+@supports (height: 100dvh) {
+  .project-stack { height: 100dvh; }
 }
 .stack-bg, .stack-fade {
   position: absolute;
@@ -302,7 +305,7 @@ button:active { transform: translateY(0) scale(0.97); }
 .stack-card-body {
   margin: 16px 0;
 }
-.stack-card-body h2 {
+.stack-card-body h3 {
   font-size: clamp(1.8rem, 4.2vw, 3.2rem);
   margin: 0 0 10px;
   letter-spacing: -0.07em;
@@ -406,6 +409,9 @@ button:active { transform: translateY(0) scale(0.97); }
   justify-content: center;
   align-items: center;
   overflow: hidden;
+}
+@supports (height: 100dvh) {
+  .testimonials-section { height: 100dvh; }
 }
 .testimonials-header {
   text-align: center;
@@ -575,40 +581,10 @@ button:active { transform: translateY(0) scale(0.97); }
   letter-spacing: 0.02em;
 }
 
+/* Marquee pager is only shown on responsive screens */
+.testimonials-pager { display: none; }
+
 /* Responsive adjustments */
-@media (max-width: 768px) {
-  .testimonials-section {
-    min-height: 100vh;
-    height: auto;
-    padding: 60px 18px 70px;
-  }
-  .testimonials-title {
-    font-size: 1.8rem;
-  }
-  .two-slot-stage {
-    flex-direction: column;
-    gap: 20px;
-    padding: 10px 0;
-  }
-  .center-spine {
-    display: none;
-  }
-  .slot-connector {
-    display: none;
-  }
-  .slot-container {
-    width: 100%;
-  }
-  .slot-card {
-    min-height: 210px;
-    padding: 22px 20px;
-    border-radius: 20px;
-  }
-  .card-quote {
-    font-size: 0.82rem;
-    line-height: 1.4;
-  }
-}
 
 /* ─── Contact area ───────────────────────────────────────────────────────── */
 .contact-area { padding: 60px 20px 130px; }
@@ -640,6 +616,23 @@ button:active { transform: translateY(0) scale(0.97); }
 .site-header a, .site-footer a { transition: opacity 0.25s ease; }
 .site-header a:hover, .site-footer a:hover { opacity: 0.72; }
 
+/* ─── Focus visibility ───────────────────────────────────────────────────── */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--pink);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+.site-header a:focus-visible,
+.site-footer a:focus-visible,
+.stack-nav-pill:focus-visible,
+.stack-card-tag:focus-visible {
+  outline-color: var(--paper);
+}
+
 /* ─── Reduced motion ─────────────────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -670,11 +663,6 @@ button:active { transform: translateY(0) scale(0.97); }
 
 /* ─── ≤1000px — tablet landscape ────────────────────────────────────────── */
 @media (max-width: 1000px) {
-  .container { margin: 0; padding-left: 0; }
-  .site-header, .home-intro, .name-display, .home-about, .site-footer {
-    padding-left: var(--home-gutter);
-    padding-right: var(--home-gutter);
-  }
   .home-about > div { font-size: 1.05rem; }
   /* Zero out image offset that overflows at this width */
   .home-about figure img { transform: none; }
@@ -718,16 +706,55 @@ button:active { transform: translateY(0) scale(0.97); }
     min-height: 200px;
     padding: 22px 20px;
     border-radius: 20px;
+    transition: opacity 0.9s ease, transform 0.9s ease;
   }
   .card-quote { font-size: 0.82rem; line-height: 1.4; }
+
+  /* Right-to-left scrolling marquee */
+  .marquee-stage {
+    width: 100%;
+    overflow: hidden;
+    mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 6%,
+      black 94%,
+      transparent 100%
+    );
+    -webkit-mask-image: linear-gradient(
+      to right,
+      transparent 0%,
+      black 6%,
+      black 94%,
+      transparent 100%
+    );
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 28s linear infinite;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+  .marquee-group {
+    display: flex;
+    gap: 22px;
+    padding-right: 22px;
+  }
+  .marquee-item {
+    flex: 0 0 auto;
+    width: max-content;
+    max-width: min(320px, 80vw);
+  }
+
+  @keyframes marquee-scroll {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
 }
 
 /* ─── ≤650px — phone portrait ────────────────────────────────────────────── */
 @media (max-width: 650px) {
-  :root { --home-gutter: 18px; }
-
   .desktop { display: none; }
-  .container { margin: 0; padding-left: 0; }
 
   .site-header {
     min-height: 65px;
@@ -764,8 +791,8 @@ button:active { transform: translateY(0) scale(0.97); }
   .home-about figure img { width: 100%; }
   .home-about > div { font-size: 0.92rem; }
   .button-row { justify-content: flex-start; gap: 10px; flex-wrap: wrap; }
-  .button-row a { padding: 14px 16px; font-size: 0.72rem; }
-  .home-about .button-row button, .home-about .button-row a { padding: 14px 16px; }
+  .button-row a { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 14px 16px; font-size: 0.72rem; }
+  .home-about .button-row button, .home-about .button-row a { min-height: 44px; padding: 14px 16px; }
 
   .home-promise { padding: 60px var(--home-gutter) 70px; }
   .home-promise p { font-size: 1rem; }
@@ -789,8 +816,9 @@ button:active { transform: translateY(0) scale(0.97); }
     -webkit-backdrop-filter: none;
   }
   .stack-card.inactive-side-card:hover { filter: none; }
-  .stack-card-body h2 { font-size: 1.9rem; }
-  .stack-card-btn { padding: 9px 16px; font-size: 0.72rem; }
+  .stack-card-body h3 { font-size: 1.9rem; }
+  .stack-card-btn { min-height: 44px; padding: 11px 20px; font-size: 0.78rem; }
+  .stack-nav-pill { min-height: 40px; padding: 9px 14px; }
 
   .site-footer { font-size: 12px; padding: 28px 18px; }
   .contact-title { padding: 50px 20px 40px; font-size: 1.8rem; }
@@ -811,7 +839,7 @@ button:active { transform: translateY(0) scale(0.97); }
     min-height: 300px;
     padding: 20px 18px 18px;
   }
-  .stack-card-body h2 { font-size: 1.7rem; }
+  .stack-card-body h3 { font-size: 1.7rem; }
   .stack-card-footer { justify-content: flex-end; }
   .stack-card-hint { display: none; }
 
@@ -842,4 +870,16 @@ button:active { transform: translateY(0) scale(0.97); }
   .contact-area select,
   .contact-area textarea { height: 58px; font-size: 0.85rem; }
   .site-footer { font-size: 11px; }
+}
+
+/* ─── Short viewports — landscape phones / low-height windows ────────────── */
+/* Prevents the pinned stack card from overlapping its pinned header nav.    */
+@media (max-height: 620px) {
+  .stack-header { top: 16px; gap: 6px; }
+  .stack-heading-text { font-size: 1rem; }
+  .stack-heading-text h2 { font-size: 1.35rem; }
+  .stack-heading-text span { display: none; }
+  .stack-nav { max-width: calc(100vw - 20px); }
+  .stack-area { padding-top: 36px; }
+  .stack-card { min-height: 300px; }
 }

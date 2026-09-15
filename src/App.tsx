@@ -88,6 +88,7 @@ interface StackProject {
   behance: string
   bgGradient: string
   bgImage: string
+  bgImageMobile?: string
 }
 
 const stackProjects: StackProject[] = projectsData
@@ -172,8 +173,8 @@ function ProjectStack() {
         scrollTrigger: {
           trigger: stackRef.current,
           start: 'top top',
-          end: () => `+=${window.innerHeight * 2.2}`,
-          scrub: 0.8,
+          end: () => `+=${window.innerHeight * (isMobile ? 1.8 : 2.2)}`,
+          scrub: isMobile ? 0.3 : 0.8,
           pin: true,
           anticipatePin: 1,
           onUpdate: (self) => {
@@ -191,8 +192,12 @@ function ProjectStack() {
 
       stRef.current = tl.scrollTrigger ?? null
 
-      // Background atmospheric depth
-      tl.to('.stack-bg', { filter: 'blur(10px)', scale: 1.07, ease: 'none', duration: 2.4 }, 0)
+      // Background atmospheric depth (skip blur on mobile — too expensive)
+      if (!isMobile) {
+        tl.to('.stack-bg', { filter: 'blur(10px)', scale: 1.07, ease: 'none', duration: 2.4 }, 0)
+      } else {
+        tl.to('.stack-bg', { scale: 1.07, ease: 'none', duration: 2.4 }, 0)
+      }
       tl.to('.stack-fade', { backgroundColor: 'rgba(38, 28, 25, 0.48)', ease: 'none', duration: 2.4 }, 0)
 
       // Hold Card 0 slightly at start (0 -> 0.15)
@@ -202,7 +207,7 @@ function ProjectStack() {
         xPercent: leftShift,
         rotation: -rotAngle,
         scale: sideScale,
-        filter: 'brightness(0.82)',
+        ...(isMobile ? {} : { filter: 'brightness(0.82)' }),
         opacity: sideOpacity,
         zIndex: 10,
         duration: 0.9,
@@ -223,7 +228,7 @@ function ProjectStack() {
         xPercent: rightShift,
         rotation: rotAngle,
         scale: sideScale,
-        filter: 'brightness(0.82)',
+        ...(isMobile ? {} : { filter: 'brightness(0.82)' }),
         opacity: sideOpacity,
         zIndex: 20,
         duration: 0.9,
@@ -267,7 +272,9 @@ function ProjectStack() {
       if (bg) bg.style.backgroundImage = "linear-gradient(rgba(248,245,242,.62), rgba(248,245,242,.62)), url('/gingham.webp')"
       stackRef.current?.querySelectorAll<HTMLElement>('.stack-card').forEach((card, i) => {
         const proj = stackProjects[i]
-        if (proj) card.style.backgroundImage = `${proj.bgGradient}, url(${proj.bgImage})`
+        if (!proj) return
+        const mobileImg = window.innerWidth < 650 ? proj.bgImageMobile : undefined
+        card.style.backgroundImage = `${proj.bgGradient}, url(${mobileImg ?? proj.bgImage})`
       })
     }
     const target = stackRef.current

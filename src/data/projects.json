@@ -8,7 +8,8 @@
     "tags": ["Figma", "UX Research", "Design System"],
     "behance": "https://www.behance.net/harshitaupadhyay",
     "bgGradient": "linear-gradient(135deg, rgba(82, 57, 54, 0.84), rgba(46, 35, 31, 0.94))",
-    "bgImage": "/cybersec.png"
+    "bgImage": "/cybersec.webp",
+    "bgImageMobile": "/cybersec-mobile.webp"
   },
   {
     "id": "himalaya",
@@ -19,7 +20,8 @@
     "tags": ["Mobile UI", "Prototyping", "iOS & Android"],
     "behance": "https://www.behance.net/harshitaupadhyay",
     "bgGradient": "linear-gradient(135deg, rgba(120, 84, 80, 0.84), rgba(64, 45, 42, 0.94))",
-    "bgImage": "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=1000&q=80"
+    "bgImage": "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=1000&q=80",
+    "bgImageMobile": "https://images.unsplash.com/photo-1551650975-87deedd944c3?auto=format&fit=crop&w=480&q=60"
   },
   {
     "id": "brand-systems",
@@ -30,6 +32,7 @@
     "tags": ["Design Tokens", "Component Library", "Accessibility"],
     "behance": "https://www.behance.net/harshitaupadhyay",
     "bgGradient": "linear-gradient(135deg, rgba(95, 78, 68, 0.86), rgba(48, 38, 32, 0.94))",
-    "bgImage": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80"
+    "bgImage": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=1000&q=80",
+    "bgImageMobile": "https://images.unsplash.com/photo-1507238691740-187a5b1d37b8?auto=format&fit=crop&w=480&q=60"
   }
 ]

@@ -277,7 +277,8 @@ function ProjectStack() {
         const proj = stackProjects[i]
         if (!proj) return
         const mobileImg = window.innerWidth < 650 ? proj.bgImageMobile : undefined
-        card.style.backgroundImage = `${proj.bgGradient}, url(${mobileImg ?? proj.bgImage})`
+        card.style.setProperty('--card-scrim', proj.bgGradient)
+        card.style.backgroundImage = `url(${mobileImg ?? proj.bgImage})`
       })
     }
     const target = stackRef.current

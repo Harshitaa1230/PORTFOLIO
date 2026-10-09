@@ -404,16 +404,15 @@ function Home() {
 
 function TestimonialsSection() {
   const [activeIdx, setActiveIdx] = useState(0)
-  const [isPaused, setIsPaused] = useState(false)
   const active = testimonialsData[activeIdx]
 
   useEffect(() => {
-    if (isPaused || testimonialsData.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (testimonialsData.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const interval = window.setInterval(() => {
       setActiveIdx((current) => (current + 1) % testimonialsData.length)
     }, 5000)
     return () => window.clearInterval(interval)
-  }, [isPaused])
+  }, [])
 
   return (
     <section className="testimonials-section" aria-labelledby="testimonials-title">
@@ -427,24 +426,11 @@ function TestimonialsSection() {
           className="testimonial-feature"
           aria-live="polite"
           aria-atomic="true"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-          onFocusCapture={() => setIsPaused(true)}
-          onBlurCapture={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPaused(false)
-          }}
         >
           <div className="feature-orbit" aria-hidden="true" />
           <img className="feature-avatar" src={`/testimonial${activeIdx + 1}.jpg`} alt={`${active.person}`} width="56" height="56" />
           <blockquote key={active.id}>“{active.quote}”</blockquote>
           <div className="feature-person"><strong>{active.person}</strong><span>{active.role}</span></div>
-          <div className="testimonial-picker" role="group" aria-label="Choose a featured testimonial">
-            {testimonialsData.map((t, index) => (
-              <button key={t.id} type="button" className={index === activeIdx ? 'is-active' : ''} aria-pressed={index === activeIdx} onClick={() => setActiveIdx(index)}>
-                {t.person.split(' ')[0]}
-              </button>
-            ))}
-          </div>
         </article>
         {testimonialsData.map((t, index) => (
           <article className={`testimonial-card testimonial-card-${index + 1}${index === activeIdx ? ' is-selected' : ''}`} key={t.id}>

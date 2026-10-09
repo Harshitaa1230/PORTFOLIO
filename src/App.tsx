@@ -403,149 +403,60 @@ function Home() {
 }
 
 function TestimonialsSection() {
-  const sectionRef = useRef<HTMLElement>(null)
-  const [isMobile, setIsMobile] = useState<boolean>(() =>
-    typeof window !== 'undefined' ? window.matchMedia('(max-width: 768px)').matches : false
-  )
+  const [activeIdx, setActiveIdx] = useState(0)
+  const [isPaused, setIsPaused] = useState(false)
+  const active = testimonialsData[activeIdx]
 
   useEffect(() => {
-    const mob = window.matchMedia('(max-width: 768px)')
-    const sync = () => setIsMobile(mob.matches)
-    sync()
-    mob.addEventListener('change', sync)
-    return () => mob.removeEventListener('change', sync)
-  }, [])
-
-  useLayoutEffect(() => {
-    // On responsive screens the cards run as an auto-rotating marquee,
-    // so the desktop scroll-scrub timeline is skipped entirely (no pin).
-    if (isMobile) return
-    const context = gsap.context(() => {
-      const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-      if (isReduced) {
-        gsap.set('.card-left-1, .card-right-1', { autoAlpha: 1, y: 0 })
-        gsap.set('.card-left-2, .card-right-2', { display: 'none' })
-        gsap.set('.spine-draw', { height: '100%' })
-        return
-      }
-
-      // Initial state: Only pair 1 is visible in the 2 slots
-      gsap.set('.card-left-1, .card-right-1', { autoAlpha: 1, y: 0 })
-      gsap.set('.card-left-2, .card-right-2', { autoAlpha: 0, y: 30 })
-      gsap.set('.spine-draw', { height: '0%' })
-      gsap.set('.spine-tip', { top: '0%' })
-      gsap.set('.slot-connector', { scaleX: 0 })
-
-      // Pinned scrubbed timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: 'top top',
-          end: () => `+=${window.innerHeight * 1.6}`,
-          pin: true,
-          scrub: 0.8,
-          anticipatePin: 1,
-        },
-      })
-
-      // Draw initial line and connectors to the first two cards
-      tl.to('.spine-draw', { height: '50%', ease: 'none', duration: 1 }, 0)
-      tl.to('.spine-tip', { top: '50%', ease: 'none', duration: 1 }, 0)
-      tl.to('.slot-connector', { scaleX: 1, duration: 0.8, ease: 'power2.out' }, 0.2)
-
-      // Hold pair 1 so user can read them (0.4 -> 0.8)
-
-      // On scroll: at those two places, first testimonial fades out and next comes in
-      // Left place: Card 1 fades out, Card 3 fades in
-      tl.to('.card-left-1', { autoAlpha: 0, y: -24, duration: 0.8, ease: 'power2.inOut' }, 0.8)
-      tl.to('.card-left-2', { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.0)
-
-      // Line draws further down to 100%
-      tl.to('.spine-draw', { height: '100%', ease: 'none', duration: 1.2 }, 0.8)
-      tl.to('.spine-tip', { top: '100%', ease: 'none', duration: 1.2 }, 0.8)
-
-      // Right place: Card 2 fades out, Card 4 fades in
-      tl.to('.card-right-1', { autoAlpha: 0, y: -24, duration: 0.8, ease: 'power2.inOut' }, 0.9)
-      tl.to('.card-right-2', { autoAlpha: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 1.1)
-
-      // Buffer at end so user can comfortably read the new testimonials
-      tl.to({}, { duration: 0.5 })
-    }, sectionRef)
-
-    const refreshTimer = setTimeout(() => {
-      ScrollTrigger.refresh()
-    }, 350)
-    const onResize = () => ScrollTrigger.refresh()
-    window.addEventListener('resize', onResize)
-
-    return () => {
-      clearTimeout(refreshTimer)
-      window.removeEventListener('resize', onResize)
-      context.revert()
-    }
-  }, [isMobile])
+    if (isPaused || testimonialsData.length < 2 || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const interval = window.setInterval(() => {
+      setActiveIdx((current) => (current + 1) % testimonialsData.length)
+    }, 5000)
+    return () => window.clearInterval(interval)
+  }, [isPaused])
 
   return (
-    <section className="testimonials-section" ref={sectionRef}>
+    <section className="testimonials-section" aria-labelledby="testimonials-title">
       <div className="testimonials-header">
         <span className="testimonials-badge">COLLABORATIONS &amp; WORDS</span>
-        <h2 className="testimonials-title">Feedback from clients<br />&amp; collaborators.</h2>
+        <h2 className="testimonials-title" id="testimonials-title">Trusted by thoughtful<br />teams and collaborators.</h2>
+        <p className="testimonials-subtitle">A few kind words from the people I’ve had the joy of building with.</p>
       </div>
-
-      {isMobile ? (
-        <div className="marquee-stage" role="region" aria-label="Client testimonials">
-          <div className="marquee-track">
-            {[false, true].map((duplicate) => (
-              <div className="marquee-group" aria-hidden={duplicate} key={duplicate ? 'dup' : 'orig'}>
-                {testimonialsData.map((t) => (
-                  <article className="slot-card marquee-item" key={`${t.id}-${duplicate}`}>
-                    <div className="card-quote-mark" aria-hidden="true">"</div>
-                    <blockquote className="card-quote">{t.quote}</blockquote>
-                    <div className="card-meta">
-                      <strong className="card-author">~ {t.person}</strong>
-                      <span className="card-role">{t.role}</span>
-                    </div>
-                  </article>
-                ))}
-              </div>
+      <div className="testimonial-grid">
+        <article
+          className="testimonial-feature"
+          aria-live="polite"
+          aria-atomic="true"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+          onFocusCapture={() => setIsPaused(true)}
+          onBlurCapture={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setIsPaused(false)
+          }}
+        >
+          <div className="feature-orbit" aria-hidden="true" />
+          <img className="feature-avatar" src={`/testimonial${activeIdx + 1}.jpg`} alt={`${active.person}`} width="56" height="56" />
+          <blockquote key={active.id}>“{active.quote}”</blockquote>
+          <div className="feature-person"><strong>{active.person}</strong><span>{active.role}</span></div>
+          <div className="testimonial-picker" role="group" aria-label="Choose a featured testimonial">
+            {testimonialsData.map((t, index) => (
+              <button key={t.id} type="button" className={index === activeIdx ? 'is-active' : ''} aria-pressed={index === activeIdx} onClick={() => setActiveIdx(index)}>
+                {t.person.split(' ')[0]}
+              </button>
             ))}
           </div>
-        </div>
-      ) : (
-        <div className="two-slot-stage">
-          {/* Central Vertical Line with drawing effect */}
-          <div className="center-spine" aria-hidden="true">
-            <div className="spine-track-line" />
-            <div className="spine-draw" />
-            <div className="spine-tip" />
-          </div>
-
-          {(([
-            'card-left',
-            'card-right',
-          ]) as const).map((prefix) => {
-            const side = prefix === 'card-left' ? 'left' : 'right'
-            const slotCards = testimonialsData.filter((t) => t.side === side).slice(0, 2)
-            return (
-              <div className={`slot-container ${side === 'left' ? 'slot-left' : 'slot-right'}`} key={prefix}>
-                <div className={`slot-connector ${side === 'left' ? 'connector-left' : 'connector-right'}`} aria-hidden="true" />
-                <div className="slot-cards-frame">
-                  {slotCards.map((t, i) => (
-                    <article className={`slot-card ${prefix}-${i + 1}`} key={t.id}>
-                      <div className="card-quote-mark" aria-hidden="true">“</div>
-                      <blockquote className="card-quote">{t.quote}</blockquote>
-                      <div className="card-meta">
-                        <strong className="card-author">~ {t.person}</strong>
-                        <span className="card-role">{t.role}</span>
-                      </div>
-                    </article>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+        </article>
+        {testimonialsData.map((t, index) => (
+          <article className={`testimonial-card testimonial-card-${index + 1}${index === activeIdx ? ' is-selected' : ''}`} key={t.id}>
+            <span className="testimonial-card-mark" aria-hidden="true">“</span>
+            <blockquote>{t.quote}</blockquote>
+            <div className="testimonial-person">
+              <img className="testimonial-avatar" src={`/testimonial${index + 1}.jpg`} alt={`${t.person}`} width="39" height="39" />
+              <span className="testimonial-person-copy"><strong>{t.person}</strong><small>{t.role}</small></span>
+            </div>
+          </article>
+        ))}
+      </div>
     </section>
   )
 }

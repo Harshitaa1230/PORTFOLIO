@@ -324,9 +324,7 @@ function ProjectStack() {
             className={`stack-card stack-card-${i} ${activeIdx === i ? 'active-card' : 'inactive-side-card'}`}
             key={proj.id}
             onClick={() => {
-              if (activeIdx !== i) {
-                scrollToProject(i)
-              }
+              if (activeIdx !== i) scrollToProject(i)
             }}
           >
             <div className="stack-card-top">
@@ -346,19 +344,9 @@ function ProjectStack() {
             </div>
             <div className="stack-card-footer">
               <span className="stack-card-hint">
-                {activeIdx !== i
-                  ? 'Click card to focus'
-                  : i < stackProjects.length - 1
-                  ? 'Scroll for next project'
-                  : 'Final selected project'}
+                {activeIdx !== i ? 'Click card to focus' : i < stackProjects.length - 1 ? 'Scroll for next project' : 'Final selected project'}
               </span>
-              <a
-                className="stack-card-btn"
-                href={proj.behance}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
+              <a className="stack-card-btn" href={proj.behance} target="_blank" rel="noopener noreferrer" onClick={(event) => event.stopPropagation()}>
                 View on Behance <span aria-hidden="true">→</span>
               </a>
             </div>
@@ -398,8 +386,38 @@ function Home() {
       <section className="home-promise"><h2>I MAKE DESIGNS<br />PEOPLE REMEMBER</h2><p>I design clean websites, apps and brand systems that help ideas look sharper, feel trusted and work with purpose</p></section>
     </section>
     <ProjectStack />
+    <RecentWriting />
     <TestimonialsSection />
   </>
+}
+
+function RecentWriting() {
+  return (
+    <section className="recent-writing" aria-labelledby="recent-writing-title">
+      <div className="recent-writing-inner">
+        <div className="recent-writing-heading">
+          <span className="testimonials-badge">FROM THE NOTEBOOK</span>
+          <h2 id="recent-writing-title">Recent articles &amp; writings</h2>
+          <p>Ideas and notes on thoughtful product design.</p>
+        </div>
+        <a
+          className="article-card"
+          href="https://www.skediodesign.in/blog/what-is-a-design-system-why-startups-need-one"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <span className="article-card-top"><span>DESIGN SYSTEMS</span><span>SKEDIO DESIGN</span></span>
+          <span className="article-card-title">What Is a Design System? Why Startups Need One</span>
+          <span className="article-card-bottom">
+            <span>A recent piece on design systems and startup product design.</span>
+            <span className="article-card-arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" focusable="false"><path d="M7 17 17 7M8 7h9v9" /></svg>
+            </span>
+          </span>
+        </a>
+      </div>
+    </section>
+  )
 }
 
 function TestimonialsSection() {
@@ -487,13 +505,7 @@ function App() {
   useEffect(() => { const handler = () => setPath(resolvePath(window.location.pathname)); window.addEventListener('popstate', handler); return () => window.removeEventListener('popstate', handler) }, [])
   useLayoutEffect(() => {
     gsap.fromTo(contentRef.current, { autoAlpha: 0, y: 10 }, { autoAlpha: 1, y: 0, duration: .45, ease: 'power2.out', clearProps: 'transform' })
-    if (window.location.pathname === '/work') {
-      window.setTimeout(() => {
-        document.getElementById('selected-work')?.scrollIntoView({ behavior: 'smooth' })
-      }, 80)
-    } else {
-      window.scrollTo({ top: 0 })
-    }
+    window.scrollTo({ top: 0 })
   }, [path])
   const content = path === '/contact' ? <Contact /> : <Home />
   return <main className="container"><Header /><section className="page-content" ref={contentRef}>{content}</section><Footer /></main>

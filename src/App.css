@@ -245,6 +245,7 @@ button:active { transform: translateY(0) scale(0.97); }
 }
 .stack-card {
   grid-area: 1 / 1;
+  position: relative;
   margin: auto;
   width: min(510px, 82vw);
   max-width: 510px;
@@ -277,6 +278,21 @@ button:active { transform: translateY(0) scale(0.97); }
   box-shadow: 0 35px 70px -10px rgba(35, 25, 22, 0.65), 0 0 0 2px rgba(235, 197, 197, 0.45);
 }
 
+/* Dark scrim behind card text. Image stays untinted by default on
+   hover-capable devices; it fades in with the details on hover, and stays
+   on for touch devices (which cannot hover) so text stays readable. */
+.stack-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--card-scrim, rgba(46, 35, 31, 0.88));
+  opacity: 1;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+
 .stack-card-top {
   display: flex;
   align-items: center;
@@ -300,6 +316,7 @@ button:active { transform: translateY(0) scale(0.97); }
   letter-spacing: 0.08em;
   opacity: 0.85;
   white-space: nowrap;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.55);
 }
 
 .stack-card-body {
@@ -372,6 +389,45 @@ button:active { transform: translateY(0) scale(0.97); }
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
   background: #ffffff;
+}
+
+/* Card details (name, description, tags, footer) and the dark scrim reveal
+   on hover. Only where hover exists — touch devices keep them visible. */
+@media (hover: hover) and (pointer: fine) {
+  .stack-card::before {
+    opacity: 0;
+    transition: opacity 0.35s ease;
+  }
+  .stack-card:hover::before,
+  .stack-card:focus-within::before {
+    opacity: 1;
+  }
+  .stack-card .stack-card-body h3,
+  .stack-card .stack-card-body p,
+  .stack-card .stack-card-pills,
+  .stack-card .stack-card-footer {
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+  .stack-card:hover .stack-card-body h3,
+  .stack-card:focus-within .stack-card-body h3,
+  .stack-card:hover .stack-card-pills,
+  .stack-card:focus-within .stack-card-pills,
+  .stack-card:hover .stack-card-footer,
+  .stack-card:focus-within .stack-card-footer {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .stack-card:hover .stack-card-body p,
+  .stack-card:focus-within .stack-card-body p {
+    opacity: 0.92;
+    transform: none;
+    pointer-events: auto;
+  }
+  .stack-card .stack-card-footer { transition-delay: 0.05s; }
 }
 
 /* ─── Footer ─────────────────────────────────────────────────────────────── */

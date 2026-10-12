@@ -6,7 +6,11 @@ import projectsData from './data/projects.json'
 import testimonialsData from './data/testimonials.json'
 import servicesData from './data/services.json'
 import socialsData from './data/socials.json'
+import figmaData from './data/figma.json'
+import figmaAspects from './data/figma-aspects.json'
 import './App.css'
+
+const figmaAspectRatios = figmaAspects as Record<string, number>
 
 gsap.registerPlugin(ScrollTrigger)
 const useClientLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect
@@ -14,6 +18,22 @@ const useClientLayoutEffect = typeof window === 'undefined' ? useEffect : useLay
 const assets = {
   gingham: '/gingham.webp',
   desk: '/desk.webp',
+}
+
+const roles = ['Product Designer', 'Design Engineer']
+
+function RoleRotator() {
+  const [index, setIndex] = useState(0)
+  useEffect(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    const id = window.setInterval(() => setIndex((current) => (current + 1) % roles.length), 2600)
+    return () => window.clearInterval(id)
+  }, [])
+  return <span className="role-rotator" aria-label={roles.join(' and ')}>
+    {roles.map((role, i) => (
+      <span key={role} className={`role${i === index ? ' is-active' : ''}`} aria-hidden="true">{role}</span>
+    ))}
+  </span>
 }
 
 type Route = '/' | '/contact'
@@ -35,7 +55,7 @@ function navigateWork() {
   }
 }
 
-function Header() {
+function Header({ onOpenPlayground }: { onOpenPlayground: () => void }) {
   const headerRef = useRef<HTMLElement>(null)
   useClientLayoutEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
@@ -45,8 +65,8 @@ function Header() {
     return () => context.revert()
   }, [])
   return <header className="site-header" ref={headerRef}>
-    <div><b>Quick Links</b><nav aria-label="Primary"><a href="/">Home</a>, <a href="/#selected-work" onClick={(event) => { event.preventDefault(); navigateWork() }}>Work</a>, <a href="/contact">Contact</a></nav></div>
-    <div className="header-right"><b>Based in India</b><span>Product Designer</span></div>
+    <div><b>Quick Links</b><nav aria-label="Primary"><a href="/">Home</a>, <a href="/#selected-work" onClick={(event) => { event.preventDefault(); navigateWork() }}>Work</a>, <a href="/contact">Contact</a>, <button type="button" className="nav-link-button" onClick={onOpenPlayground}>Playground</button></nav></div>
+    <div className="header-right"><b className="header-location">Based in India</b><RoleRotator /></div>
   </header>
 }
 
@@ -385,12 +405,11 @@ function Home() {
   }, [])
   return <>
     <div ref={homeRef} className="home-page">
-      <section className="home-intro" aria-labelledby="home-title"><div><h1 id="home-title">Harshita Upadhyay<br />Product Designer</h1><p>Product &amp; UI/UX designer in India. I design calm, clear interfaces for SaaS, web and mobile products. <span lang="hi">दिल से.</span></p></div><img className="avatar" src="/avatar.webp" width="190" height="190" decoding="async" loading="eager" fetchPriority="high" alt="Illustrated portrait of Harshita Upadhyay" /></section>
+      <section className="home-intro"><div><p>I design and build clear interfaces for<br />SaaS, web and mobile products.<br /><span className="dil-se"><span className="dil-se-hi" lang="hi">दिल से.</span><span className="dil-se-en">from heart.</span></span></p></div><img className="avatar" src="/avatar.webp" width="190" height="190" decoding="async" loading="eager" fetchPriority="high" alt="Illustrated portrait of Harshita Upadhyay" /></section>
       <div className="name-display" aria-hidden="true">{'Harshita'.split('').map((letter, index) => <span className="name-letter" key={`${letter}-${index}`}>{letter}</span>)}</div>
       {/* TODO(owner): Add city, education, certifications, and internship details when verified. */}
-      <Texture className="home-about" aria-labelledby="about-title"><h2 className="visually-hidden" id="about-title">About Harshita</h2><figure><img src={assets.desk} width="982" height="949" loading="lazy" decoding="async" alt="A cosy illustrated designer workspace" /></figure><div><p>Hi, I’m <strong>Harshita Upadhyay</strong>, a product designer in India. I work across UX research, wireframing, UI design, prototyping and design systems in Figma. Recent work includes a cybersecurity SaaS dashboard (CyberSec Toolkit) and a physiotherapy product (Sedative Physio), and I’ve designed with teams at Skedio, Artcetra and NeuroBots Robotics Club.</p><p>~I design with intention.</p><div className="button-row"><a href="/#selected-work" onClick={(e) => { e.preventDefault(); navigateWork() }}>View selected work</a>{/* TODO(owner): Add public/resume.pdf and relink. */}<a href="/contact">Get in touch</a></div></div></Texture>
-      <section className="home-promise" aria-labelledby="promise-title"><h2 id="promise-title">I MAKE DESIGNS<br />PEOPLE REMEMBER</h2><p>I design clean websites, apps and design systems that help ideas look sharper, feel trusted and work with purpose.</p></section>
-      <section className="services-section" aria-labelledby="services-title"><div className="services-inner"><h2 id="services-title">What I design</h2><ul className="services-list">{servicesData.map((service) => <li className="service-card" key={service.name}><h3>{service.name}</h3><p>{service.description}</p></li>)}</ul><p className="availability">Open to full-time roles and freelance projects.</p></div></section>
+      <Texture className="home-about" aria-labelledby="about-title"><h2 className="visually-hidden" id="about-title">About Harshita</h2><figure><img src={assets.desk} width="982" height="949" loading="lazy" decoding="async" alt="A cosy illustrated designer workspace" /></figure><div><p>Hi, I’m <strong>Harshita Upadhyay</strong>, a Product Designer &amp; Design Engineer in India. I design thoughtful digital experiences for SaaS, web and mobile products, and use AI-assisted coding to bring my designs to life.</p><p>My recent work includes CyberSec Toolkit and Sedative Physio. Currently, I’m designing and building <strong>Designer’s Room</strong>.</p><p>~I design with intention.</p><div className="button-row"><a href="/#selected-work" onClick={(e) => { e.preventDefault(); navigateWork() }}>View selected work</a>{/* TODO(owner): Add public/resume.pdf and relink. */}<a href="/contact">Get in touch</a></div></div></Texture>
+      <section className="home-promise" aria-labelledby="promise-title"><h2 id="promise-title">I MAKE DESIGNS<br />PEOPLE REMEMBER</h2><p>I design clean websites, apps and design systems that make ideas clearer, feel more<br />intuitive and work with purpose, bringing them to life with AI-assisted coding.</p></section>
     </div>
     <ProjectStack />
     <RecentWriting />
@@ -499,6 +518,194 @@ function Contact() {
   </form></Texture></>
 }
 
+function figmaSrc(url: string) {
+  try {
+    const parsed = new URL(url)
+    if (!/(^|\.)figma\.com$/.test(parsed.hostname)) return url
+    parsed.hostname = 'embed.figma.com'
+    if (!parsed.searchParams.has('embed-host')) parsed.searchParams.set('embed-host', 'portfolio')
+    parsed.searchParams.set('footer', 'false')
+    parsed.searchParams.set('page-selector', 'false')
+    if (isPrototype(url)) {
+      parsed.searchParams.set('scaling', 'contain')
+      parsed.searchParams.set('device-frame', 'false')
+    }
+    return parsed.toString()
+  } catch {
+    return url
+  }
+}
+
+function isPrototype(url: string) {
+  return /figma\.com\/proto\//.test(url)
+}
+
+function Playground({ onClose }: { onClose: () => void }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const stageRef = useRef<HTMLDivElement>(null)
+  const worldRef = useRef<HTMLDivElement>(null)
+  const viewRef = useRef({ x: 0, y: 0, scale: 1 })
+  const dragRef = useRef<{ pointerId: number; x: number; y: number } | null>(null)
+  const frameRef = useRef(0)
+  const redrawRef = useRef<() => void>(() => {})
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const stage = stageRef.current
+    const context = canvas?.getContext('2d')
+    if (!canvas || !stage || !context) return
+
+    const render = () => {
+      frameRef.current = 0
+      const dpr = window.devicePixelRatio || 1
+      const width = canvas.clientWidth
+      const height = canvas.clientHeight
+      if (canvas.width !== Math.round(width * dpr) || canvas.height !== Math.round(height * dpr)) {
+        canvas.width = Math.round(width * dpr)
+        canvas.height = Math.round(height * dpr)
+      }
+      context.setTransform(dpr, 0, 0, dpr, 0, 0)
+      context.clearRect(0, 0, width, height)
+      const { x, y, scale } = viewRef.current
+      const spacing = Math.max(26, 44 * scale)
+      const startX = ((x % spacing) + spacing) % spacing - spacing
+      const startY = ((y % spacing) + spacing) % spacing - spacing
+      const radius = Math.max(0.7, Math.min(2.2, 1.1 * scale))
+      context.fillStyle = 'rgba(91, 74, 68, 0.35)'
+      for (let gx = startX; gx < width + spacing; gx += spacing) {
+        for (let gy = startY; gy < height + spacing; gy += spacing) {
+          context.beginPath()
+          context.arc(gx, gy, radius, 0, Math.PI * 2)
+          context.fill()
+        }
+      }
+      if (worldRef.current) {
+        worldRef.current.style.transform = `translate(${x}px, ${y}px) scale(${scale})`
+      }
+    }
+
+    const schedule = () => {
+      if (!frameRef.current) frameRef.current = window.requestAnimationFrame(render)
+    }
+    redrawRef.current = schedule
+
+    const onWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      const rect = stage.getBoundingClientRect()
+      const pointerX = event.clientX - rect.left
+      const pointerY = event.clientY - rect.top
+      const view = viewRef.current
+      const nextScale = Math.min(4, Math.max(0.2, view.scale * Math.exp(-event.deltaY * 0.0015)))
+      const worldX = (pointerX - view.x) / view.scale
+      const worldY = (pointerY - view.y) / view.scale
+      view.scale = nextScale
+      view.x = pointerX - worldX * nextScale
+      view.y = pointerY - worldY * nextScale
+      schedule()
+    }
+
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.button !== 0) return
+      if ((event.target as HTMLElement).closest('iframe, button, a, input, select, textarea')) return
+      stage.setPointerCapture(event.pointerId)
+      dragRef.current = { pointerId: event.pointerId, x: event.clientX, y: event.clientY }
+      stage.classList.add('is-panning')
+    }
+    const onPointerMove = (event: PointerEvent) => {
+      const drag = dragRef.current
+      if (!drag || drag.pointerId !== event.pointerId) return
+      const view = viewRef.current
+      view.x += event.clientX - drag.x
+      view.y += event.clientY - drag.y
+      drag.x = event.clientX
+      drag.y = event.clientY
+      schedule()
+    }
+    const onPointerUp = (event: PointerEvent) => {
+      if (dragRef.current?.pointerId !== event.pointerId) return
+      dragRef.current = null
+      stage.classList.remove('is-panning')
+    }
+
+    stage.addEventListener('wheel', onWheel, { passive: false })
+    stage.addEventListener('pointerdown', onPointerDown)
+    stage.addEventListener('pointermove', onPointerMove)
+    stage.addEventListener('pointerup', onPointerUp)
+    stage.addEventListener('pointercancel', onPointerUp)
+    window.addEventListener('resize', schedule)
+    schedule()
+
+    return () => {
+      if (frameRef.current) window.cancelAnimationFrame(frameRef.current)
+      frameRef.current = 0
+      stage.removeEventListener('wheel', onWheel)
+      stage.removeEventListener('pointerdown', onPointerDown)
+      stage.removeEventListener('pointermove', onPointerMove)
+      stage.removeEventListener('pointerup', onPointerUp)
+      stage.removeEventListener('pointercancel', onPointerUp)
+      window.removeEventListener('resize', schedule)
+    }
+  }, [])
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') onClose() }
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [onClose])
+
+  const reset = () => {
+    viewRef.current = { x: 0, y: 0, scale: 1 }
+    redrawRef.current()
+  }
+
+  return <div className="playground" role="dialog" aria-modal="true" aria-label="Playground — Figma boards">
+    <div className="playground-bar">
+      <b>Playground</b>
+      <span className="playground-hint">Drag to pan · Scroll to zoom</span>
+      <div className="playground-actions">
+        <button type="button" onClick={reset}>Reset view</button>
+        <button type="button" onClick={onClose} autoFocus>Close</button>
+      </div>
+    </div>
+    <div className="playground-stage" ref={stageRef}>
+      <canvas ref={canvasRef} className="playground-canvas" aria-label="Infinite canvas — drag to pan, scroll to zoom" />
+      <div className="canvas-world" ref={worldRef}>
+        <div className="figma-board">
+          {figmaData.map((project) => {
+            const cols = Math.max(1, Math.min(project.screens.length, 3))
+            const isPrototypeBoard = project.screens.some((url) => isPrototype(url))
+            return (
+              <section className={`figma-project${isPrototypeBoard ? ' is-prototype' : ''}`} key={project.name} style={{ '--cols': cols } as React.CSSProperties}>
+                <header className="figma-project-head">
+                  <h3>{project.name}</h3>
+                  <span>{project.screens.length} screen{project.screens.length === 1 ? '' : 's'}</span>
+                </header>
+                <div className="figma-screens">
+                  {project.screens.map((url, index) => {
+                    const isUrl = url.startsWith('http')
+                    const isProto = isUrl ? isPrototype(url) : isPrototypeBoard
+                    const screenClass = `figma-screen${isProto ? ' prototype' : ''}`
+                    const ratio = figmaAspectRatios[url]
+                    const screenStyle = ratio ? { aspectRatio: String(ratio) } : undefined
+                    return isUrl
+                      ? <iframe key={`${project.name}-${index}`} className={screenClass} style={screenStyle} src={figmaSrc(url)} title={`${project.name} — screen ${index + 1}`} loading="lazy" allowFullScreen />
+                      : <div key={`${project.name}-${index}`} className={`${screenClass} is-placeholder`} style={screenStyle}><span>Screen {index + 1}</span><small>Paste a Figma embed URL</small></div>
+                  })}
+                </div>
+              </section>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
 function App({ initialPath }: { initialPath?: string } = {}) {
   const resolvePath = (raw: string): Route => {
     const pathname = raw.replace(/\/+$/, '') || '/'
@@ -506,12 +713,16 @@ function App({ initialPath }: { initialPath?: string } = {}) {
     return '/'
   }
   const [path, setPath] = useState<Route>(() => resolvePath(initialPath ?? (typeof window === 'undefined' ? '/' : window.location.pathname)))
+  const [playgroundOpen, setPlaygroundOpen] = useState(false)
   useEffect(() => { const handler = () => setPath(resolvePath(window.location.pathname)); window.addEventListener('popstate', handler); return () => window.removeEventListener('popstate', handler) }, [])
   useClientLayoutEffect(() => {
     window.scrollTo({ top: 0 })
   }, [path])
   const content = path === '/contact' ? <Contact /> : <Home />
-  return <main className="container"><Header /><div className="page-content">{content}</div><Footer /></main>
+  return <>
+    <main className="container"><Header onOpenPlayground={() => setPlaygroundOpen(true)} /><div className="page-content">{content}</div><Footer /></main>
+    {playgroundOpen && <Playground onClose={() => setPlaygroundOpen(false)} />}
+  </>
 }
 
 export default App
